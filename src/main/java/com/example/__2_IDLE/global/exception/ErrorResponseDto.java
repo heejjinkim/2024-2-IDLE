@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.exception;
+package com.example.__2_IDLE.global.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import java.util.List;

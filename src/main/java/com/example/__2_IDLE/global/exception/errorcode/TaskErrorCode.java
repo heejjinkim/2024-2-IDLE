@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.exception.errorcode;
+package com.example.__2_IDLE.global.exception.errorcode;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

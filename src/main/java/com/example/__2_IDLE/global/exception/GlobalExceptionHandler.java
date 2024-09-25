@@ -1,9 +1,9 @@
-package com.example.__2_IDLE.exception;
+package com.example.__2_IDLE.global.exception;
 
-import static com.example.__2_IDLE.exception.errorcode.CommonErrorCode.INVALID_PARAMETER;
+import static com.example.__2_IDLE.global.exception.errorcode.CommonErrorCode.INVALID_PARAMETER;
 
-import com.example.__2_IDLE.exception.errorcode.CommonErrorCode;
-import com.example.__2_IDLE.exception.errorcode.ErrorCode;
+import com.example.__2_IDLE.global.exception.errorcode.CommonErrorCode;
+import com.example.__2_IDLE.global.exception.errorcode.ErrorCode;
 import java.util.Collections;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;

@@ -1,7 +1,7 @@
-package com.example.__2_IDLE.task.dto;
+package com.example.__2_IDLE.task.model;
 
-import com.example.__2_IDLE.entity.Item;
-import com.example.__2_IDLE.task.entity.Station;
+import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.global.model.enums.Station;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,8 +21,8 @@ public class RobotTask {
 
   public static RobotTask of(Item item, Station station) {
     return RobotTask.builder()
-        .itemX(item.getLocationX())
-        .itemY(item.getLocationY())
+        .itemX(item.getShelf().getLocationX())
+        .itemY(item.getShelf().getLocationY())
         .stationX(station.getLocationX())
         .stationY(station.getLocationY())
         .build();
