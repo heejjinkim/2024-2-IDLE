@@ -1,8 +1,8 @@
 package com.example.__2_IDLE.task;
 
-import com.example.__2_IDLE.task.entity.Item;
-import com.example.__2_IDLE.task.entity.Order;
-import com.example.__2_IDLE.task.entity.OrderItem;
+import com.example.__2_IDLE.entity.Item;
+import com.example.__2_IDLE.entity.Order;
+import com.example.__2_IDLE.entity.OrderItem;
 import com.example.__2_IDLE.task.entity.Station;
 import com.example.__2_IDLE.task.repository.OrderRepository;
 import com.example.__2_IDLE.task.repository.StationRepository;

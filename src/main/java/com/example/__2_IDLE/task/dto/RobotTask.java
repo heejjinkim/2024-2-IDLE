@@ -1,6 +1,6 @@
 package com.example.__2_IDLE.task.dto;
 
-import com.example.__2_IDLE.task.entity.Item;
+import com.example.__2_IDLE.entity.Item;
 import com.example.__2_IDLE.task.entity.Station;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.task.entity;
+package com.example.__2_IDLE.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;

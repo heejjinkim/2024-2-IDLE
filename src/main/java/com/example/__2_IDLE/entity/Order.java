@@ -1,9 +1,7 @@
-package com.example.__2_IDLE.task.entity;
+package com.example.__2_IDLE.entity;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
+
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -11,23 +9,26 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Entity
+
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order {
 
-  @Id
   private Long id;
-  private String customer;
+
   private boolean isSameDayDelivery;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "customer_id")
+  private Customer customer;
 
   @OneToMany(mappedBy = "order", orphanRemoval = true, cascade = CascadeType.ALL)
   @Builder.Default
   private List<OrderItem> orderItems = new ArrayList<>();
 
-  public static Order of(String customer, List<OrderItem> orderItems, boolean isSameDayDelivery) {
+  public static Order of(Customer customer, List<OrderItem> orderItems, boolean isSameDayDelivery) {
     Order order = Order.builder()
         .customer(customer)
         .orderItems(orderItems)
