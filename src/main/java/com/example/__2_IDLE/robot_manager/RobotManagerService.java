@@ -1,10 +1,12 @@
 package com.example.__2_IDLE.robot_manager;
 
+import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.robot_manager.pos.Pos;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
 import com.example.__2_IDLE.robot_manager.state.RobotStateContainer;
+import com.example.__2_IDLE.task.model.RobotTask;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,11 +20,11 @@ import java.util.Optional;
 public class RobotManagerService {
     private RobotContainer robotContainer;
 
-    public void updateShelf(String namespace, int shelfId) {
+    public void updateShelf(String namespace, Shelf shelf) {
         Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
         if (optionalRobot.isPresent()) { // 선반 업데이트
             Robot targetRobot = optionalRobot.get();
-            targetRobot.setShelfId(shelfId);
+            targetRobot.setShelf(shelf);
         } else {
             log.info("로봇 '{}'가 존재하지 않습니다.", namespace);
         }
@@ -49,6 +51,14 @@ public class RobotManagerService {
             log.info("로봇 '{}' 상태 {} -> {} 업데이트 완료", namespace, currentState.stateName(), nextState.stateName());
         } else {
             log.info("로봇 '{}'가 존재하지 않습니다.", namespace);
+        }
+    }
+
+    public void updateRobotTask (String namespace, RobotTask robotTask) {
+        Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
+        if (optionalRobot.isPresent()) {
+            Robot targetRobot = optionalRobot.get();
+            targetRobot.setRobotTask(robotTask);
         }
     }
 

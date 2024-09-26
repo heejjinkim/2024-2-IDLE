@@ -1,5 +1,6 @@
 package com.example.__2_IDLE.robot_manager;
 
+import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.robot_manager.pos.Pos;
 import com.example.__2_IDLE.robot_manager.request.AddRobotRequest;
 import com.example.__2_IDLE.robot_manager.request.UpdatePosRequest;
@@ -33,8 +34,8 @@ public class RobotManagerController {
     @PostMapping("/robot/shelf")
     public void updateShelf (@RequestBody UpdateShelfRequest request) {
         String namespace = request.getNamespace();
-        int shelfId = request.getShelfId();
-        robotManagerService.updateShelf(namespace, shelfId);
+        Shelf shelf = request.getShelf();
+        robotManagerService.updateShelf(namespace, shelf);
         // TODO 프론트에 알림
     }
     // 로봇 위치 업데이트 (ROS -> SPRING -> FRONT)

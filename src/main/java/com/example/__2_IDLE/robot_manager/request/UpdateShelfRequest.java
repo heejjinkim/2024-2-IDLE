@@ -1,5 +1,6 @@
 package com.example.__2_IDLE.robot_manager.request;
 
+import com.example.__2_IDLE.global.model.enums.Shelf;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,5 +8,5 @@ import lombok.Setter;
 @Setter
 public class UpdateShelfRequest {
     private String namespace;
-    private int shelfId;
+    private Shelf shelf;
 }
