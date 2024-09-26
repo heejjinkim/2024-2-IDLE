@@ -28,6 +28,12 @@ public class ScheduleModule {
         private int urgency;
     }
 
+    public void aging() {
+        for (TempTask task : taskQueue) {
+            task.setWaitTime(task.getWaitTime() + 1);
+        }
+    }
+
     public void addTask(TempTask task) {
         taskQueue.add(task);
     }
