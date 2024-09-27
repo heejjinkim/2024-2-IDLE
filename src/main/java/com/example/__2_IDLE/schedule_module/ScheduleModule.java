@@ -1,9 +1,9 @@
 package com.example.__2_IDLE.schedule_module;
 
-import lombok.Getter;
-import lombok.Setter;
+import com.example.__2_IDLE.global.model.Task;
 import lombok.extern.slf4j.Slf4j;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -12,33 +12,27 @@ import java.util.List;
 public class ScheduleModule {
     private final double WAIT_TIME_WEIGHT = 0.2;
     private final double SCALE = 100.00; // 소수 셋째자리에서 반올림
-    private List<TempTask> taskQueue = new ArrayList<>();
+    private List<Task> taskQueue = new ArrayList<>();
 
     private double calculatePriority(double waitTime, int urgency) {
         double priority = WAIT_TIME_WEIGHT * waitTime + (1 - WAIT_TIME_WEIGHT) * urgency;
         return Math.round(priority * SCALE) / SCALE;
     }
 
-    @Getter
-    @Setter
-    private class TempTask {
-        private int id;
-        private double waitTime;
-        private double priority;
-        private int urgency;
-    }
+    public void run(){
+        scheduleTask();
+        while(!taskQueue.isEmpty()){
+            Task task = pollTask();
+            printTask(task);
 
-    public void aging() {
-        for (TempTask task : taskQueue) {
-            task.setWaitTime(task.getWaitTime() + 1);
         }
     }
 
-    public void addTask(TempTask task) {
-        taskQueue.add(task);
+    public void addTask(List<Task> tasks) {
+        taskQueue.addAll(tasks);
     }
 
-    public TempTask pollTask() {
+    public Task pollTask() {
         if (!taskQueue.isEmpty()) {
             return taskQueue.remove(0);
         }
@@ -47,14 +41,19 @@ public class ScheduleModule {
 
     public void scheduleTask() {
         updatePriority();
-        taskQueue.sort(Comparator.comparingDouble(TempTask::getPriority).reversed());
+        taskQueue.sort(Comparator.comparingDouble(Task::getPriority).reversed());
     }
 
     private void updatePriority() {
-        for (TempTask task : taskQueue) {
-            double waitTime = task.getWaitTime();
+        LocalDateTime now = LocalDateTime.now();
+        for (Task task : taskQueue) {
+            double waitTime = java.time.Duration.between(task.getCreateTime(), now).getSeconds();
             int urgency = task.getUrgency();
             task.setPriority(calculatePriority(waitTime, urgency));
         }
+    }
+
+    public void printTask(Task task) {
+        System.out.println(task);
     }
 }
