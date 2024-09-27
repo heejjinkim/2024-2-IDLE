@@ -10,7 +10,7 @@ public enum Item {
 
   private final Long id;
   private final String name;
-  private final Shelf shelf;  // Shelf를 변수로 가짐
+  private final Shelf shelf; 
 
   Item(Long id, String name, Shelf shelf) {
     this.id = id;

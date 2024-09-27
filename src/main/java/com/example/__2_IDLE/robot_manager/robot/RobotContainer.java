@@ -1,6 +1,8 @@
 package com.example.__2_IDLE.robot_manager.robot;
 
 import com.example.__2_IDLE.robot_manager.state.RobotState;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -46,5 +48,10 @@ public class RobotContainer {
             }
         }
         return returnMap;
+    }
+
+    // 모든 로봇을 리스트로 반환하는 함수
+    public List<Robot> getAllRobots() {
+        return new ArrayList<>(robotMap.values());
     }
 }
