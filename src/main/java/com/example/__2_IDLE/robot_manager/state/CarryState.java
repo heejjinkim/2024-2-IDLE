@@ -3,6 +3,7 @@ package com.example.__2_IDLE.robot_manager.state;
 import com.example.__2_IDLE.robot_manager.pos.Pos;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.task.model.RobotTask;
+import java.util.LinkedList;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -19,7 +20,7 @@ public class CarryState extends RobotState {
     public void startTask(Robot robot) {
         Pos startPos = robot.getPos();
         RobotTask robotTask = robot.getRobotTask();
-        ArrayList<Pos> destinations = robotTask.getDestinations();
+        LinkedList<Pos> destinations = robotTask.getDestinations();
         for (Pos viaPos : destinations) {
             goTo(startPos, viaPos);
             robot.setPos(viaPos);
