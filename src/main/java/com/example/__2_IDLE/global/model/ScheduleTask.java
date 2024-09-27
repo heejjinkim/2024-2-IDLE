@@ -4,7 +4,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class Task {
+public class ScheduleTask {
     private int id;
     private LocalDateTime createTime;
     private double priority = 0;

@@ -3,7 +3,7 @@ package com.example.__2_IDLE.simulator;
 
 import com.example.__2_IDLE.global.model.Customer;
 import com.example.__2_IDLE.global.model.Order;
-import com.example.__2_IDLE.global.model.Task;
+import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
 
@@ -11,8 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-
-import static javax.swing.text.html.parser.DTDConstants.NAMES;
 
 public class SimulatorService {
     private final ScheduleModule scheduleModule = new ScheduleModule();
@@ -30,9 +28,9 @@ public class SimulatorService {
         printOrderList(orders);
 
         // 스케쥴링
-        List<Task> tasks = new ArrayList<>();
+        List<ScheduleTask> tasks = new ArrayList<>();
         for(int i = 0 ; i < orders.size() ; i++){
-            Task task = new Task();
+            ScheduleTask task = new ScheduleTask();
             task.setId(i);
             if(orders.get(i).isSameDayDelivery()){
                 task.setUrgency(1);
