@@ -12,4 +12,7 @@ public abstract class RobotState {
     protected String stateName = "wait";
     public String stateName() { return stateName; }
     abstract public void startTask(Robot robot);
+    public boolean isWaiting() {
+        return "wait".equals(stateName);
+    }
 }
