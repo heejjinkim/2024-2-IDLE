@@ -7,7 +7,7 @@ import com.example.__2_IDLE.global.exception.RestApiException;
 import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.task.model.RobotTask;
@@ -64,7 +64,7 @@ public class TaskModule {
         double vPrime = 1.0; // TODO: 로봇의 속도?
 
         // 거리 계산
-        double distanceToShelf = calculateDistance(robot.getPos(), task.getDestinations().getFirst()); // 로봇과 선반 사이의 거리
+        double distanceToShelf = calculateDistance(robot.getPose(), task.getDestinations().getFirst()); // 로봇과 선반 사이의 거리
         double shelfToStationDistance = calculateShelfToStation(task); // 새로운 작업 선반과 피킹 스테이션 사이의 거리
         double previousToNewShelfDistance = calculatePreviousShelfToNewShelf(robot, task); // 이전 작업 선반과 새로운 작업 선반 사이의 거리
 
@@ -89,8 +89,8 @@ public class TaskModule {
     }
 
     // 두 Pos 간의 거리 계산 (유클리드)
-    private double calculateDistance(Pos startPos, Pos endPos) {
-        return Math.sqrt(Math.pow(endPos.getX() - startPos.getX(), 2) + Math.pow(endPos.getY() - startPos.getY(), 2));
+    private double calculateDistance(Pose startPose, Pose endPose) {
+        return Math.sqrt(Math.pow(endPose.getX() - startPose.getX(), 2) + Math.pow(endPose.getY() - startPose.getY(), 2));
     }
 
     // 선반과 피킹 스테이션 사이의 거리
@@ -102,10 +102,10 @@ public class TaskModule {
     private double calculatePreviousShelfToNewShelf(Robot robot, RobotTask currentTask) {
         RobotTask previousTask = robot.getTaskQueue().getLast(); // 이전 작업
         if (previousTask != null) {
-            Pos previousPos = previousTask.getDestinations().getFirst(); // 이전 작업의 선반 위치
-            Pos currentPos = currentTask.getDestinations().getFirst();   // 새로운 작업의 선반 위치
+            Pose previousPose = previousTask.getDestinations().getFirst(); // 이전 작업의 선반 위치
+            Pose currentPose = currentTask.getDestinations().getFirst();   // 새로운 작업의 선반 위치
 
-            return calculateDistance(previousPos, currentPos);
+            return calculateDistance(previousPose, currentPose);
         }
         return 0;
     }
@@ -114,17 +114,17 @@ public class TaskModule {
     private boolean isTaskCorrelated(RobotTask task, Robot robot) {
         RobotTask previousTask = robot.getTaskQueue().getLast(); // 이전 작업
         if (previousTask != null) {
-            Pos previousPos = previousTask.getDestinations().getFirst(); // 이전 작업의 선반 위치
-            Pos currentPos = task.getDestinations().getFirst(); // 새로운 작업의 선반 위치
+            Pose previousPose = previousTask.getDestinations().getFirst(); // 이전 작업의 선반 위치
+            Pose currentPose = task.getDestinations().getFirst(); // 새로운 작업의 선반 위치
 
-            return previousPos.equals(currentPos);
+            return previousPose.equals(currentPose);
         }
         return false;
     }
 
     // 로봇과 작업의 스테이션 간 거리 계산
     private double calculateStationDistance(Robot robot, RobotTask task) {
-        return calculateDistance(robot.getPos(),
+        return calculateDistance(robot.getPose(),
             task.getDestinations().get(task.getDestinations().size() - 1));
     }
 }

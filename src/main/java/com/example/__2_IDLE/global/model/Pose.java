@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.robot_manager.pos;
+package com.example.__2_IDLE.global.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import lombok.ToString;
 @Setter
 @ToString
 @AllArgsConstructor
-public class Pos {
+public class Pose {
     double x;
     double y;
 }

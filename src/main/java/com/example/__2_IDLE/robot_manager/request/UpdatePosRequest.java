@@ -1,6 +1,6 @@
 package com.example.__2_IDLE.robot_manager.request;
 
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,5 +8,5 @@ import lombok.Setter;
 @Setter
 public class UpdatePosRequest {
     private String namespace;
-    private Pos pos;
+    private Pose pose;
 }

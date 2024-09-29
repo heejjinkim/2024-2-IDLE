@@ -1,7 +1,7 @@
 package com.example.__2_IDLE.robot_manager;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
@@ -30,12 +30,12 @@ public class RobotManagerService {
         }
     }
 
-    public void updatePos(String namespace, Pos pos) {
+    public void updatePos(String namespace, Pose pose) {
         Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
         if (optionalRobot.isPresent()) {
             Robot robot = optionalRobot.get();
-            robot.setPos(pos);
-            log.info("로봇 {}의 pos를 {}로 변경하였습니다.", namespace, robot.getPos().toString());
+            robot.setPose(pose);
+            log.info("로봇 {}의 pos를 {}로 변경하였습니다.", namespace, robot.getPose().toString());
         } else {
             log.info("로봇 '{}'가 존재하지 않습니다.", namespace);
         }

@@ -5,23 +5,23 @@ import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.STAT
 import com.example.__2_IDLE.global.exception.RestApiException;
 import java.util.Arrays;
 
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import lombok.Getter;
 
 @Getter
 public enum Station {
-  STATION_A(1L, "Station A", new Pos(10, 20)), // TODO: 좌표 수정 필요
-  STATION_B(2L, "Station B", new Pos(15, 20)),
-  STATION_C(3L, "Station C", new Pos(20, 30));
+  STATION_A(1L, "Station A", new Pose(10, 20)), // TODO: 좌표 수정 필요
+  STATION_B(2L, "Station B", new Pose(15, 20)),
+  STATION_C(3L, "Station C", new Pose(20, 30));
 
   private final Long id;
   private final String name;
-  private Pos pos;
+  private Pose pose;
 
-  Station(Long id, String name, Pos pos) {
+  Station(Long id, String name, Pose pose) {
     this.id = id;
     this.name = name;
-    this.pos = pos;
+    this.pose = pose;
   }
 
   public static Station getById(Long id) {
