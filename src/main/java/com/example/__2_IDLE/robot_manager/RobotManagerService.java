@@ -21,7 +21,7 @@ public class RobotManagerService {
     private RobotContainer robotContainer;
 
     public void updateShelf(String namespace, Shelf shelf) {
-        Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
+        Optional<Robot> optionalRobot = getRobot(namespace);
         if (optionalRobot.isPresent()) { // 선반 업데이트
             Robot targetRobot = optionalRobot.get();
             targetRobot.setShelf(shelf);
@@ -31,7 +31,7 @@ public class RobotManagerService {
     }
 
     public void updatePos(String namespace, Pose pose) {
-        Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
+        Optional<Robot> optionalRobot = getRobot(namespace);
         if (optionalRobot.isPresent()) {
             Robot robot = optionalRobot.get();
             robot.setPose(pose);
@@ -42,7 +42,7 @@ public class RobotManagerService {
     }
 
     public void updateState(String namespace, String stateName) {
-        Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
+        Optional<Robot> optionalRobot = getRobot(namespace);
         if (optionalRobot.isPresent()) { // 상태 업데이트
             Robot targetRobot = optionalRobot.get();
             RobotState currentState = targetRobot.getState();
@@ -55,7 +55,7 @@ public class RobotManagerService {
     }
 
     public void updateRobotTask (String namespace, RobotTask robotTask) {
-        Optional<Robot> optionalRobot = robotContainer.getRobot(namespace);
+        Optional<Robot> optionalRobot = getRobot(namespace);
         if (optionalRobot.isPresent()) {
             Robot targetRobot = optionalRobot.get();
             targetRobot.setRobotTask(robotTask);
@@ -63,11 +63,12 @@ public class RobotManagerService {
     }
 
     public void addRobot(Robot robot) {
-        if (robotContainer.getRobot(robot.getNamespace()).isPresent()) {
+        if (getRobot(robot.getNamespace()).isPresent()) {
             log.info("이미 로봇 {}가 존재합니다.", robot.getNamespace());
         }
         robotContainer.addRobot(robot);
     }
     public void removeRobot(String namespace) { robotContainer.removeRobot(namespace); }
     public Map<String, Robot> getRobotByState(RobotState state) { return robotContainer.getRobotsByState(state); }
+    public Optional<Robot> getRobot(String namespace) { return robotContainer.getRobot(namespace); }
 }
