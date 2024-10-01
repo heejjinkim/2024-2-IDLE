@@ -7,8 +7,8 @@ import lombok.Setter;
 @Setter
 @Getter
 public abstract class ROSMessageHandler<T extends MessageValue> {
-    String messageName;
-    String messageType;
+    protected String messageName;
+    protected String messageType;
 
     abstract public T processMessage(String message);
     abstract protected T parsingMessage(String message);
