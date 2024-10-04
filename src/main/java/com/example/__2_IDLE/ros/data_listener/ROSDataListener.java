@@ -22,5 +22,5 @@ public abstract class ROSDataListener {
         log.info("completely connected ROS");
     }
 
-    public abstract void go();
+    public abstract void listen();
 }

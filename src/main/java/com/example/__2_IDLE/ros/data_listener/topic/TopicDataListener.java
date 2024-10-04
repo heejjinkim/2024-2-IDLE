@@ -29,7 +29,7 @@ public class TopicDataListener extends ROSDataListener implements ROSTopic {
     }
 
     @Override
-    public void go() {
+    public void listen() {
         topic();
         // 콜백이 완료될 때까지 대기
         try {
