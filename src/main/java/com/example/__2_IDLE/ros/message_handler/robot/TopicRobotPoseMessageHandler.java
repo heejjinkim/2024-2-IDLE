@@ -21,7 +21,9 @@ public class TopicRobotPoseMessageHandler extends RobotMessageHandler<RobotPoseM
         this.messageName = "/odom";
         this.messageType = "nav_msgs/Odometry";
         this.namespace = namespace;
+        this.messageMethod = "topic";
     }
+
     @Override
     public void processMessage() {
         JsonNode positionNode = parsingMessage();

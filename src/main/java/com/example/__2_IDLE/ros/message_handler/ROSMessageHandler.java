@@ -12,6 +12,7 @@ public abstract class ROSMessageHandler<T extends MessageValue> {
     protected String message;
     protected String messageName;
     protected String messageType;
+    protected String messageMethod;
 
     abstract public void processMessage();
     abstract protected JsonNode parsingMessage();
