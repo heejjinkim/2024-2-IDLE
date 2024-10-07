@@ -1,7 +1,7 @@
 package com.example.__2_IDLE.robot_manager.robot;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
 import com.example.__2_IDLE.robot_manager.state.RobotStateContainer;
 import com.example.__2_IDLE.task.model.RobotTask;
@@ -18,15 +18,15 @@ import lombok.ToString;
 public class Robot {
 
     private String namespace;
-    private Pos pos;             // 현재 위치
+    private Pose pose;             // 현재 위치
     private RobotState state;    // 현재 상태
     private Shelf shelf;         // 현재 운반 중인 선반
     private RobotTask robotTask; // 현재 할당 받은 작업
     private LinkedList<RobotTask> taskQueue; // 로봇의 작업 큐
 
-    public Robot(String namespace, Pos pos) {
+    public Robot(String namespace, Pose pose) {
         this.namespace = namespace;
-        this.pos = pos;
+        this.pose = pose;
         this.state = RobotStateContainer.getWaitStateInstance();
         this.shelf = null;
         this.robotTask = null;

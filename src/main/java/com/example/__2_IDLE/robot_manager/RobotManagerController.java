@@ -1,11 +1,6 @@
 package com.example.__2_IDLE.robot_manager;
 
-import com.example.__2_IDLE.global.model.enums.Shelf;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
 import com.example.__2_IDLE.robot_manager.request.AddRobotRequest;
-import com.example.__2_IDLE.robot_manager.request.UpdatePosRequest;
-import com.example.__2_IDLE.robot_manager.request.UpdateShelfRequest;
-import com.example.__2_IDLE.robot_manager.request.UpdateStateRequest;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
 import com.example.__2_IDLE.robot_manager.state.RobotStateContainer;
@@ -21,36 +16,12 @@ import java.util.Map;
 public class RobotManagerController {
     private RobotManagerService robotManagerService;
 
-    // 로봇 상태 업데이트 (ROS -> SPRING -> FRONT)
-    @PostMapping("/robot/state")
-    public void updateState (@RequestBody UpdateStateRequest request) {
-        String namespace = request.getNamespace();
-        String stateName = request.getState();
-        robotManagerService.updateState(namespace, stateName);
-        // TODO 프론트에 알림
-    }
 
-    // 선반 업데이트 (ROS -> SPRING -> FRONT)
-    @PostMapping("/robot/shelf")
-    public void updateShelf (@RequestBody UpdateShelfRequest request) {
-        String namespace = request.getNamespace();
-        Shelf shelf = request.getShelf();
-        robotManagerService.updateShelf(namespace, shelf);
-        // TODO 프론트에 알림
-    }
-    // 로봇 위치 업데이트 (ROS -> SPRING -> FRONT)
-    @PostMapping("/robot/pos")
-    public void updatePos (@RequestBody UpdatePosRequest request) {
-        String namespace = request.getNamespace();
-        Pos pos = request.getPos();
-        robotManagerService.updatePos(namespace, pos);
-        // TODO 프론트에 알림
-    }
     //로봇 추가 (FRONT -> SPRING -> ROS)
     @PostMapping("/robot/add")
     public void addRobot(@RequestBody AddRobotRequest request) {
         // TODO ROS 서버로 요청 보내고 응답 받기
-        Robot robot = new Robot(request.getNamespace(), request.getPos());
+        Robot robot = new Robot(request.getNamespace(), request.getPose());
         robotManagerService.addRobot(robot);
     }
 

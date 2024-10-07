@@ -1,6 +1,6 @@
 package com.example.__2_IDLE.global.model.enums;
 
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import lombok.Getter;
 
 @Getter
@@ -10,10 +10,10 @@ public enum Shelf {
   SHELF_C(3L, new Pos(15, 10));
 
   private final Long id;
-  private Pos pos;
+  private Pose pose;
 
-  Shelf(Long id, Pos pos) {
+  Shelf(Long id, Pose pose) {
     this.id = id;
-    this.pos = pos;
+    this.pose = pose;
   }
 }

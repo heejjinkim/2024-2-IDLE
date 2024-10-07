@@ -5,7 +5,7 @@ import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.STAT
 import com.example.__2_IDLE.global.exception.RestApiException;
 import java.util.Arrays;
 
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import lombok.Getter;
 
 @Getter
@@ -16,12 +16,12 @@ public enum Station {
 
   private final Long id;
   private final String name;
-  private Pos pos;
+  private Pose pose;
 
-  Station(Long id, String name, Pos pos) {
+  Station(Long id, String name, Pose pose) {
     this.id = id;
     this.name = name;
-    this.pos = pos;
+    this.pose = pose;
   }
 
   public static Station getById(Long id) {

@@ -2,7 +2,7 @@ package com.example.__2_IDLE.task.model;
 
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import java.util.LinkedList;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,18 +15,18 @@ import lombok.NoArgsConstructor;
 @Builder
 public class RobotTask {
 
-    private Long id;
-    private LinkedList<Pos> destinations;
+  private Long id;
+  private LinkedList<Pose> destinations;
 
-    public static RobotTask of(Item item, LinkedList<Station> stations) {
-        LinkedList<Pos> posList = new LinkedList<>();
-        posList.add(item.getShelf().getPos());
-        for (Station station : stations) {
-            posList.add(station.getPos());
-        }
-        posList.add(item.getShelf().getPos());
-        return RobotTask.builder()
-            .destinations(posList)
-            .build();
+  public static RobotTask of(Item item, LinkedList<Station> stations) {
+    LinkedList<Pose> poseList = new LinkedList<>();
+    poseList.add(item.getShelf().getPose());
+    for (Station station : stations) {
+      poseList.add(station.getPose());
     }
+    poseList.add(item.getShelf().getPose());
+    return RobotTask.builder()
+        .destinations(poseList)
+        .build();
+  }
 }
