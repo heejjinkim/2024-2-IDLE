@@ -10,9 +10,9 @@ import lombok.Getter;
 
 @Getter
 public enum Station {
-  STATION_A(1L, "Station A", new Pose(10, 20)), // TODO: 좌표 수정 필요
-  STATION_B(2L, "Station B", new Pose(15, 20)),
-  STATION_C(3L, "Station C", new Pose(20, 30));
+  STATION_A(1L, "Station A", new Pos(5, 0)), // TODO: 좌표 수정 필요
+  STATION_B(2L, "Station B", new Pos(15, 0)),
+  STATION_C(3L, "Station C", new Pos(20, 0));
 
   private final Long id;
   private final String name;

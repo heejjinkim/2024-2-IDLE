@@ -4,7 +4,6 @@ import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.Pose;
 import java.util.LinkedList;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,6 +24,7 @@ public class RobotTask {
     for (Station station : stations) {
       poseList.add(station.getPose());
     }
+    poseList.add(item.getShelf().getPose());
     return RobotTask.builder()
         .destinations(poseList)
         .build();
