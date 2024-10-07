@@ -1,41 +1,59 @@
 package com.example.__2_IDLE.ros;
 
 import com.example.__2_IDLE.ros.data_listener.ROSDataListener;
-import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
+import com.example.__2_IDLE.ros.data_listener.ROSDataListenerFactory;
 import com.example.__2_IDLE.ros.message_handler.ROSMessageHandler;
 import com.example.__2_IDLE.ros.message_handler.ROSMessageHandlerFactory;
 import com.example.__2_IDLE.ros.message_value.MessageValue;
 import edu.wpi.rail.jrosbridge.Ros;
-import edu.wpi.rail.jrosbridge.Topic;
-import lombok.AllArgsConstructor;
 
-public class ROS<T extends MessageValue> {
+public class ROS {
 
-    private String hostName;
-    private Ros ros;
-    private ROSDataListener dataListener;
-    private ROSMessageHandler<T> messageHandler;
-    private ROSMessageHandlerFactory messageHandlerFactory
+    private final Ros ros;
+    private final ROSMessageHandlerFactory messageHandlerFactory;
+    private final ROSDataListenerFactory dataListenerFactory;
 
-    public ROS() {
-        this.hostName = "192.168.111.128";
+    public ROS(String hostName) {
         this.ros = new Ros(hostName);
+        this.messageHandlerFactory = new ROSMessageHandlerFactory();
+        this.dataListenerFactory = new ROSDataListenerFactory();
     }
 
-    public void setComponent(String messageName) {
+    public MessageValue getMessageFromROS(String messageName) {
         ROSMessageHandler messageHandler = messageHandlerFactory.createMessageHandler(messageName);
+        return process(messageHandler);
     }
 
-    public void setComponent(String messageName, String namespace) {
-        messageHandlerFactory.createMessageHandler(messageName, namespace);
+    public MessageValue getMessageFromROS(String messageName, String namespace) {
+        ROSMessageHandler messageHandler = messageHandlerFactory.createMessageHandler(messageName, namespace);
+        return process(messageHandler);
     }
 
-    public T getValue() {
-        // 데이터 수신 시작
+    private MessageValue process(ROSMessageHandler messageHandler) {
+        ROSDataListener dataListener = createDataListener(messageHandler);
+        setDataListener(messageHandler, dataListener);
+        setupConnection(dataListener, messageHandler);
+        return getMessage(messageHandler);
+    }
+
+    private ROSDataListener createDataListener(ROSMessageHandler messageHandler) {
+        String messageMethod = messageHandler.getMessageMethod();
+        return dataListenerFactory.createROSDataListener(messageMethod);
+    }
+
+    private void setDataListener(ROSMessageHandler messageHandler, ROSDataListener dataListener) {
+        dataListener.setRos(ros);
+        dataListener.setMessageHandler(messageHandler);
+    }
+
+    private void setupConnection(ROSDataListener dataListener, ROSMessageHandler messageHandler) {
         dataListener.connect();
         dataListener.listen();
         messageHandler.processMessage();
+    }
 
-        return messageHandler.getValue();
+    public MessageValue getMessage(ROSMessageHandler messageHandler) {
+        // 데이터 수신 시작
+        return messageHandler.getMessageValue();
     }
 }

@@ -22,14 +22,9 @@ public class TopicDataListener extends ROSDataListener implements ROSTopic {
 
     private CompletableFuture<Void> future;
 
-    public TopicDataListener(Ros ros, ROSMessageHandler messageHandler) {
-        super(ros);
-        this.messageHandler = messageHandler;
-        this.future = new CompletableFuture<>();
-    }
-
     @Override
     public void listen() {
+        future = new CompletableFuture<>();
         topic();
         // 콜백이 완료될 때까지 대기
         try {

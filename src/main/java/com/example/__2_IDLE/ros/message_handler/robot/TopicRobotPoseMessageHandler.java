@@ -9,12 +9,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
+import java.text.DecimalFormat;
+
 @Getter
 @Setter
 @Slf4j
-public class TopicRobotPoseMessageHandler extends RobotMessageHandler<RobotPoseMessageValue>{
+public class TopicRobotPoseMessageHandler extends RobotMessageHandler{
 
-    private RobotPoseMessageValue messageValue = new RobotPoseMessageValue();
     private boolean lock;
 
     public TopicRobotPoseMessageHandler(String namespace) {
@@ -22,15 +23,20 @@ public class TopicRobotPoseMessageHandler extends RobotMessageHandler<RobotPoseM
         this.messageType = "nav_msgs/Odometry";
         this.namespace = namespace;
         this.messageMethod = "topic";
+        this.messageValue = new RobotPoseMessageValue();
     }
 
     @Override
     public void processMessage() {
         JsonNode positionNode = parsingMessage();
-        double x = positionNode.path("x").asDouble();
-        double y = positionNode.path("y").asDouble();
-        messageValue.setX(x);
-        messageValue.setY(y);
+        Double x = positionNode.path("x").asDouble();
+        Double y = positionNode.path("y").asDouble();
+
+        String formatX = String.format("%.2f", x);
+        String formatY = String.format("%.2f", y);
+
+        messageValue.setValueByKey("x", formatX);
+        messageValue.setValueByKey("y", formatY);
     }
 
     @Override
@@ -38,18 +44,13 @@ public class TopicRobotPoseMessageHandler extends RobotMessageHandler<RobotPoseM
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode rootNode = objectMapper.readTree(message);
-            JsonNode positionNode = rootNode
+            log.info("message: {}", message);
+            return rootNode
                     .path("pose")
                     .path("pose")
                     .path("position");
-            return positionNode;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    @Override
-    public RobotPoseMessageValue getValue() {
-        return messageValue;
     }
 }
