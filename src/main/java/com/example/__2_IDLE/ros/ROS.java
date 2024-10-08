@@ -32,8 +32,8 @@ public class ROS {
     private MessageValue process(ROSMessageHandler messageHandler) {
         ROSDataListener dataListener = createDataListener(messageHandler);
         setDataListener(messageHandler, dataListener);
-        setupConnection(dataListener, messageHandler);
-        return getMessage(messageHandler);
+        setupConnection(dataListener);
+        return getMessageValue(messageHandler);
     }
 
     private ROSDataListener createDataListener(ROSMessageHandler messageHandler) {
@@ -46,14 +46,13 @@ public class ROS {
         dataListener.setMessageHandler(messageHandler);
     }
 
-    private void setupConnection(ROSDataListener dataListener, ROSMessageHandler messageHandler) {
+    private void setupConnection(ROSDataListener dataListener) {
         dataListener.connect();
         dataListener.listen();
-        messageHandler.processMessage();
     }
 
-    public MessageValue getMessage(ROSMessageHandler messageHandler) {
-        // 데이터 수신 시작
+    public MessageValue getMessageValue(ROSMessageHandler messageHandler) {
+        messageHandler.processMessage();
         return messageHandler.getMessageValue();
     }
 }
