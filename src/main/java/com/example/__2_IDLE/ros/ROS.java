@@ -21,19 +21,19 @@ public class ROS {
 
     public MessageValue getMessageFromROS(String messageName) {
         ROSMessageHandler messageHandler = messageHandlerFactory.createMessageHandler(messageName);
-        return process(messageHandler);
+        return getMessageValue(messageHandler);
     }
 
     public MessageValue getMessageFromROS(String messageName, String namespace) {
         ROSMessageHandler messageHandler = messageHandlerFactory.createMessageHandler(messageName, namespace);
-        return process(messageHandler);
+        return getMessageValue(messageHandler);
     }
 
-    private MessageValue process(ROSMessageHandler messageHandler) {
+    private MessageValue getMessageValue(ROSMessageHandler messageHandler) {
         ROSDataListener dataListener = createDataListener(messageHandler);
         setDataListener(messageHandler, dataListener);
         setupConnection(dataListener);
-        return getMessageValue(messageHandler);
+        return processMessage(messageHandler);
     }
 
     private ROSDataListener createDataListener(ROSMessageHandler messageHandler) {
@@ -51,7 +51,7 @@ public class ROS {
         dataListener.listen();
     }
 
-    public MessageValue getMessageValue(ROSMessageHandler messageHandler) {
+    public MessageValue processMessage(ROSMessageHandler messageHandler) {
         messageHandler.processMessage();
         return messageHandler.getMessageValue();
     }
