@@ -174,7 +174,7 @@ public class TaskModule {
             Pose currentPos = currentTask.getDestinations().getFirst();   // 새로운 작업의 선반 위치
           
           
-            return calculateDistance(previousPose, currentPose);
+            return calculateDistance(previousPos, currentPos);
         }
         return 0;
     }
@@ -186,7 +186,7 @@ public class TaskModule {
             Pose previousPos = previousTask.getDestinations().getFirst(); // 이전 작업의 선반 위치
             Pose currentPos = task.getDestinations().getFirst(); // 새로운 작업의 선반 위치
 
-            return previousPose.equals(currentPose);
+            return previousPos.equals(currentPos);
         }
         return false;
     }

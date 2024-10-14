@@ -5,7 +5,7 @@ import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.robot_manager.pos.Pos;
+import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.robot_manager.state.CarryState;
@@ -18,9 +18,9 @@ public class TaskModuleTest2 {
 
     public static void main(String[] args) {
         // 로봇 3대 생성
-        Robot robot1 = new Robot("Robot1", new Pos(5, 5));
-        Robot robot2 = new Robot("Robot2", new Pos(10, 5));
-        Robot robot3 = new Robot("Robot3", new Pos(15, 5));
+        Robot robot1 = new Robot("Robot1", new Pose(5, 5));
+        Robot robot2 = new Robot("Robot2", new Pose(10, 5));
+        Robot robot3 = new Robot("Robot3", new Pose(15, 5));
         robot3.setState(new CarryState());
         robot3.setShelf(Shelf.SHELF_A);
         robot3.setTaskQueue(new LinkedList<>(

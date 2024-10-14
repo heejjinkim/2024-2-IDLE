@@ -24,7 +24,6 @@ public class ScheduleModule {
         while(!taskQueue.isEmpty()){
             ScheduleTask task = pollTask();
             printTask(task);
-
         }
     }
 
