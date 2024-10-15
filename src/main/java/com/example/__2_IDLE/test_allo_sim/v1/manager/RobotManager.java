@@ -1,6 +1,6 @@
-package com.example.__2_IDLE.test_allo_sim.manager;
+package com.example.__2_IDLE.test_allo_sim.v1.manager;
 
-import com.example.__2_IDLE.test_allo_sim.*;
+import com.example.__2_IDLE.test_allo_sim.v1.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

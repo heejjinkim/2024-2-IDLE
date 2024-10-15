@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.test_allo_sim;
+package com.example.__2_IDLE.test_allo_sim.v1;
 
 import lombok.Getter;
 import lombok.Setter;

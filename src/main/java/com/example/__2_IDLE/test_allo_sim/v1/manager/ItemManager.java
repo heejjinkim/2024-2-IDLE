@@ -1,7 +1,7 @@
-package com.example.__2_IDLE.test_allo_sim.manager;
+package com.example.__2_IDLE.test_allo_sim.v1.manager;
 
-import com.example.__2_IDLE.test_allo_sim.Item;
-import com.example.__2_IDLE.test_allo_sim.Pose;
+import com.example.__2_IDLE.test_allo_sim.v1.Item;
+import com.example.__2_IDLE.test_allo_sim.v1.Pose;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

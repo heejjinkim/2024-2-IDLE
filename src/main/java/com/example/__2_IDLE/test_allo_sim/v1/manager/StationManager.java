@@ -1,8 +1,8 @@
-package com.example.__2_IDLE.test_allo_sim.manager;
+package com.example.__2_IDLE.test_allo_sim.v1.manager;
 
-import com.example.__2_IDLE.test_allo_sim.Pose;
-import com.example.__2_IDLE.test_allo_sim.Station;
-import com.example.__2_IDLE.test_allo_sim.Task;
+import com.example.__2_IDLE.test_allo_sim.v1.Pose;
+import com.example.__2_IDLE.test_allo_sim.v1.Station;
+import com.example.__2_IDLE.test_allo_sim.v1.Task;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 

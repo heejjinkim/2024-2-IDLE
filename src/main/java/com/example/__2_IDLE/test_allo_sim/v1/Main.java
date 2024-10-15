@@ -1,6 +1,6 @@
-package com.example.__2_IDLE.test_allo_sim;
+package com.example.__2_IDLE.test_allo_sim.v1;
 
-import com.example.__2_IDLE.test_allo_sim.manager.Mediator;
+import com.example.__2_IDLE.test_allo_sim.v1.manager.Mediator;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;

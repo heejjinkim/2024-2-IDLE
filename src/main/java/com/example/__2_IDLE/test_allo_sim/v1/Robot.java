@@ -1,7 +1,6 @@
-package com.example.__2_IDLE.test_allo_sim;
+package com.example.__2_IDLE.test_allo_sim.v1;
 
-import com.example.__2_IDLE.test_allo_sim.manager.Mediator;
-import com.example.__2_IDLE.test_allo_sim.manager.TaskManager;
+import com.example.__2_IDLE.test_allo_sim.v1.manager.Mediator;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
-import java.util.Queue;
 
 @Slf4j
 @Getter
