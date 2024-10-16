@@ -94,6 +94,17 @@ public class TaskModule {
                 if (taskIndex < taskCount && robotIndex < n) { // 더미 작업 무시
                     Robot bestRobot = allRobots.get(robotIndex);
                     RobotTask newTask = RobotTask.of(orderItems.get(startIndex + taskIndex), new LinkedList<>(List.of(station)));
+
+                    if (!bestRobot.getTaskQueue().isEmpty()) {
+                        RobotTask lastTask = bestRobot.getTaskQueue().getLast();
+                        // 로봇의 마지막 작업과 새로운 작업의 아이템이 동일한지 확인
+                        if (lastTask.getItem().equals(newTask.getItem())) {
+                            // 새로운 작업의 피킹 스테이션을 이전 작업의 마지막 목적지에 추가
+                            lastTask.getDestinations().addLast(newTask.getDestinations().get(1));
+                            continue;
+                        }
+                    }
+
                     bestRobot.getTaskQueue().add(newTask);
                     log.info("new task item: {}", orderItems.get(startIndex + taskIndex).getName());
                     log.info("best robot: {}", bestRobot.getNamespace());
