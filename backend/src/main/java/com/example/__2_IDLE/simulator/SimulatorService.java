@@ -36,9 +36,19 @@ public class SimulatorService {
                 System.out.println(" - 작업 없음");
             } else {
                 for (RobotTask task : robot.getTaskQueue()) {
-                    System.out.println(
-                            " - Task for item: " + task.getDestinations().getFirst() + " -> 피킹 스테이션: "
-                                    + task.getDestinations().getLast());
+                    System.out.print(" - 선반: " + task.getDestinations().getFirst());
+
+                    if (task.getDestinations().size() > 2) {
+                        System.out.print(" -> 피킹 스테이션: ");
+                        for (int i = 1; i < task.getDestinations().size() - 1; i++) {
+                            System.out.print(task.getDestinations().get(i));
+                            if (i < task.getDestinations().size() - 2) {
+                                System.out.print(", ");
+                            }
+                        }
+                    }
+
+                    System.out.println(" -> 선반: " + task.getDestinations().getLast());
                 }
             }
             System.out.println("현재 상태: " + robot.getState().stateName());
