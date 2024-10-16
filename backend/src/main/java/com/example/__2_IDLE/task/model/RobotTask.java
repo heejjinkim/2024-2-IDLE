@@ -17,6 +17,7 @@ public class RobotTask {
 
   private Long id;
   private LinkedList<Pose> destinations;
+  private Item item;
 
   public static RobotTask of(Item item, LinkedList<Station> stations) {
     LinkedList<Pose> poseList = new LinkedList<>();
@@ -27,6 +28,7 @@ public class RobotTask {
     poseList.add(item.getShelf().getPose());
     return RobotTask.builder()
         .destinations(poseList)
+        .item(item)
         .build();
   }
 }
