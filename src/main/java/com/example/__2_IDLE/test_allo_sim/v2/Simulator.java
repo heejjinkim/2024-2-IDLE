@@ -107,26 +107,33 @@ public class Simulator {
     private void allocateMinCostTask() {
         List<Robot> robotList = robotManager.getRobotList();
         for (Robot robot : robotList) {
-            Task lastTask = robot.getLastTask();
-            Task minCostTask = findMinCostTask(lastTask, robot); // todo 여기서 null 넘어오는 경우 있음
+            Task minCostTask = findMinCostTask(robot); // todo 여기서 null 넘어오는 경우 있음
+            if (minCostTask == null) {
+                continue;
+            }
+//            log.info("minCostTask: {}", minCostTask);
             allocateTask(robot, minCostTask);
         }
     }
 
-    private Task findMinCostTask(Task robotLastTask, Robot robot) {
+    private Task findMinCostTask(Robot robot) {
+        Task robotLastTask = robot.getLastTask();
         Pose robotPose = robot.getInitalPose();
         if (robotLastTask == null) { // 첫 번째 작업인 경우
             log.info("첫 번째 작업인 경우");
             return whenFirstTask(robotPose);
         }
-        log.info(" 두 번째 작업인 경우");
-        return whenAfterSecondTask(robotLastTask);
+        log.info("첫 번째 작업이 아닌 경우");
+        return whenNotFirstTask(robotLastTask);
     }
 
-    private Task whenAfterSecondTask(Task robotLastTask) {
+    private Task whenNotFirstTask(Task robotLastTask) {
         Task targetTask = null;
+        stationManager.printUnallocatedTasks();
         Station maxCompletionTimeStation = findStationByMaxCompletionTime(); // 피킹 시간이 가장 늦는 피킹 스테이션
+        log.info("선택된 피킹 스테이션: {}", maxCompletionTimeStation.getName());
         Map<Integer, String> maxCompletionTimeUnalloTasks = maxCompletionTimeStation.getUnallocatedTasks(); // 위 피킹 스테이션의 unallocated 집합
+        log.info("maxCompletionTimeUnalloTasks: {}", maxCompletionTimeUnalloTasks);
         int minTimeCost = Integer.MAX_VALUE;
         for (Integer taskId : maxCompletionTimeUnalloTasks.keySet()) {
             Task task = taskManager.getTaskById(taskId);

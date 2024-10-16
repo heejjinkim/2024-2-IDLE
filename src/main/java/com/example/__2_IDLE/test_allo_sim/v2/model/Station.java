@@ -64,6 +64,7 @@ public class Station {
     }
 
     public void printUnallocatedTasks() {
+        log.info("{}==========", this.name);
         for (Integer taskId : unallocatedTasks.keySet()) {
             String itemName = unallocatedTasks.get(taskId);
             log.info("[{}, {}]", taskId, itemName);
