@@ -1,7 +1,6 @@
-package com.example.__2_IDLE.global;
+package com.example.__2_IDLE.global.model;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
-import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.task.model.RobotTask;
 import java.util.LinkedList;
 import lombok.Getter;
