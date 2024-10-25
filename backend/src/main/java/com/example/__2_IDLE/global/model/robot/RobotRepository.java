@@ -1,6 +1,5 @@
-package com.example.__2_IDLE.robot_manager;
+package com.example.__2_IDLE.global.model.robot;
 
-import com.example.__2_IDLE.global.model.Robot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 

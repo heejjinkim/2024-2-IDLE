@@ -1,14 +1,11 @@
-package com.example.__2_IDLE.robot_manager;
+package com.example.__2_IDLE.global.model.robot;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.global.model.Robot;
-import com.example.__2_IDLE.task.model.RobotTask;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
 import java.util.Optional;
 
 @Slf4j

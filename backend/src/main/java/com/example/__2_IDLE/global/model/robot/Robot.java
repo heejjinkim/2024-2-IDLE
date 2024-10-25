@@ -1,7 +1,7 @@
-package com.example.__2_IDLE.global.model;
+package com.example.__2_IDLE.global.model.robot;
 
-import com.example.__2_IDLE.global.model.enums.Shelf;
-import com.example.__2_IDLE.test_allo_sim.v3.PickingTask;
+import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.task_allocator.PickingTask;
 import java.util.LinkedList;
 import java.util.List;
 
