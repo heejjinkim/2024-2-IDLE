@@ -8,7 +8,7 @@
 //import com.example.__2_IDLE.global.model.enums.Item;
 //import com.example.__2_IDLE.global.model.enums.Station;
 //import com.example.__2_IDLE.global.model.Pose;
-//import com.example.__2_IDLE.robot_manager.robot.Robot;
+//import com.example.__2_IDLE.global.Robot;
 //import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 //import com.example.__2_IDLE.task.model.RobotTask;
 //import java.util.LinkedList;

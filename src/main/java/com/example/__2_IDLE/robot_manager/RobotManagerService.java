@@ -2,7 +2,7 @@ package com.example.__2_IDLE.robot_manager;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.robot_manager.robot.Robot;
+import com.example.__2_IDLE.global.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
 import com.example.__2_IDLE.robot_manager.state.RobotStateContainer;
