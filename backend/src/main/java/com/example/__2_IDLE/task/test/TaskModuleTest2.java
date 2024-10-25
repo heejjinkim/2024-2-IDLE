@@ -6,8 +6,8 @@ import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.robot_manager.robot.Robot;
-import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
+import com.example.__2_IDLE.global.model.Robot;
+import com.example.__2_IDLE.robot_manager.RobotRepository;
 import com.example.__2_IDLE.robot_manager.state.CarryState;
 import com.example.__2_IDLE.task.TaskModule;
 import com.example.__2_IDLE.task.model.RobotTask;
@@ -27,13 +27,13 @@ public class TaskModuleTest2 {
             List.of(RobotTask.of(Item.ITEM_A, new LinkedList<>(List.of(Station.STATION_A))))));
 
         // 로봇 컨테이너에 로봇 추가
-        RobotContainer robotContainer = new RobotContainer();
-        robotContainer.addRobot(robot1);
-        robotContainer.addRobot(robot2);
-        robotContainer.addRobot(robot3);
+        RobotRepository robotRepository = new RobotRepository();
+        robotRepository.addRobot(robot1);
+        robotRepository.addRobot(robot2);
+        robotRepository.addRobot(robot3);
 
         // TaskModule 생성
-        TaskModule taskModule = new TaskModule(robotContainer);
+        TaskModule taskModule = new TaskModule(robotRepository);
 
         // 물품 3개 생성
         Item item1 = Item.ITEM_A;
@@ -54,11 +54,11 @@ public class TaskModuleTest2 {
         // TaskModule로 작업 할당
         taskModule.taskAllocationWithHungarian(order, station);
 
-        printRobotTaskQueues(robotContainer);
+        printRobotTaskQueues(robotRepository);
     }
 
-    private static void printRobotTaskQueues(RobotContainer robotContainer) {
-        List<Robot> allRobots = robotContainer.getAllRobots();
+    private static void printRobotTaskQueues(RobotRepository robotRepository) {
+        List<Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots) {
             System.out.println(robot.getNamespace() + " 작업 큐:");
             if (robot.getTaskQueue().isEmpty()) {

@@ -6,10 +6,9 @@ import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
-import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.robot_manager.robot.Robot;
-import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
+import com.example.__2_IDLE.global.model.Robot;
+import com.example.__2_IDLE.robot_manager.RobotRepository;
 import com.example.__2_IDLE.robot_manager.state.CarryState;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
 import com.example.__2_IDLE.task.TaskModule;
@@ -17,13 +16,12 @@ import com.example.__2_IDLE.task.model.RobotTask;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
 public class SimulatorService {
     private final ScheduleModule scheduleModule = new ScheduleModule();
-    private final RobotContainer robotContainer = new RobotContainer();
+    private final RobotRepository robotRepository = new RobotRepository();
     private void printOrderList(List<Order> orders){
         System.out.println("생성된 Order 출력 : ");
         System.out.println("-------------------------------------------");
@@ -33,7 +31,7 @@ public class SimulatorService {
     }
 
     private void printRobotTaskQueues() {
-        List<Robot> allRobots = robotContainer.getAllRobots();
+        List<Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots) {
             System.out.println(robot.getNamespace() + " 작업 큐:");
             if (robot.getTaskQueue().isEmpty()) {
@@ -88,12 +86,12 @@ public class SimulatorService {
 //                List.of(RobotTask.of(Item.ITEM_A, new LinkedList<>(List.of(Station.STATION_A))))));
 
         // 로봇 컨테이너에 로봇 추가
-        robotContainer.addRobot(robot1);
-        robotContainer.addRobot(robot2);
-        robotContainer.addRobot(robot3);
+        robotRepository.addRobot(robot1);
+        robotRepository.addRobot(robot2);
+        robotRepository.addRobot(robot3);
 
         // TaskModule 생성
-        TaskModule taskModule = new TaskModule(robotContainer);
+        TaskModule taskModule = new TaskModule(robotRepository);
 
         // 물품 3개 생성
         Item item1 = Item.ITEM_A;
