@@ -29,6 +29,5 @@ public class GoalPublisher extends ROSPublisher {
 
         // 메시지 발행
         goalTopic.publish(goalMessage.toRosMessage());
-        log.info("Published goal to {} at destination: {}", namespace, destination);
     }
 }
