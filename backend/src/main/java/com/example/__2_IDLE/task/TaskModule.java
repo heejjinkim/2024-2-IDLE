@@ -1,31 +1,31 @@
-//package com.example.__2_IDLE.task;
-//
-//import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.NO_AVAILABLE_ROBOT;
-//import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.UNAVAILABLE_COST;
-//
-//import com.example.__2_IDLE.global.exception.RestApiException;
-//import com.example.__2_IDLE.global.model.Order;
-//import com.example.__2_IDLE.global.model.enums.Item;
-//import com.example.__2_IDLE.global.model.enums.Station;
-//import com.example.__2_IDLE.global.model.Pose;
-//import com.example.__2_IDLE.global.model.robot.Robot;
-//import com.example.__2_IDLE.global.model.robot.RobotRepository;
-//import com.example.__2_IDLE.task.model.HungarianAlgorithm;
-//import com.example.__2_IDLE.task.model.RobotTask;
-//import java.util.LinkedList;
-//import java.util.List;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Component;
-//
-//@Slf4j
-//@RequiredArgsConstructor
-//@Component
-//public class TaskModule {
-//
-//    private final RobotRepository robotRepository;
-//
-//    // 선행 논문과 동일하게 큐의 마지막 작업과 새로운 작업 상관성만 고려
+package com.example.__2_IDLE.task;
+
+import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.NO_AVAILABLE_ROBOT;
+import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.UNAVAILABLE_COST;
+
+import com.example.__2_IDLE.global.exception.RestApiException;
+import com.example.__2_IDLE.global.model.Order;
+import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.global.model.enums.Station;
+import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.global.model.robot.Robot;
+import com.example.__2_IDLE.global.model.robot.RobotRepository;
+import com.example.__2_IDLE.task.model.HungarianAlgorithm;
+import com.example.__2_IDLE.task.model.RobotTask;
+import java.util.LinkedList;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+@Slf4j
+@RequiredArgsConstructor
+@Component
+public class TaskModule {
+
+    private final RobotRepository robotRepository;
+
+    // 선행 논문과 동일하게 큐의 마지막 작업과 새로운 작업 상관성만 고려
 //    public void taskAllocation(Order order, Station station) {
 //        List<Item> orderItems = order.getOrderItems();
 //
@@ -44,8 +44,8 @@
 //            }
 //        }
 //    }
-//
-//    // 한 로봇에 작업이 몰리는 현상을 해결하기 위해 헝가리안 알고리즘 적용
+
+    // 한 로봇에 작업이 몰리는 현상을 해결하기 위해 헝가리안 알고리즘 적용
 //    public void taskAllocationWithHungarian(Order order, Station station) {
 //        List<Item> orderItems = order.getOrderItems();
 //        List<Robot> allRobots = robotRepository.getAllRobots();
@@ -104,10 +104,10 @@
 //            startIndex += taskCount;
 //        }
 //    }
-//
-//
-//
-//
+
+
+
+
 //    private Robot findBestRobot(RobotTask newTask) {
 //        // 현재 로봇의 작업 상태 받아오기
 //        List<Robot> allRobots = robotRepository.getAllRobots();
@@ -126,7 +126,7 @@
 //        }
 //        return bestRobot;
 //    }
-//
+
 //    private double calculateCost(Robot robot, RobotTask task, int l) {
 //        double tPrime = 3; // 피킹 시간(3초라고 가정)
 //        double vPrime = 1.0; // TODO: 로봇의 속도?
@@ -155,7 +155,7 @@
 //        }
 //        return cost;
 //    }
-//
+
 //    // 두 Pos 간의 거리 계산 (유클리드)
 //    private double calculateDistance(Pose startPose, Pose endPose) {
 //        return Math.sqrt(Math.pow(endPose.getX() - startPose.getX(), 2) + Math.pow(endPose.getY() - startPose.getY(), 2));
@@ -195,4 +195,4 @@
 //    private double calculateStationDistance(Robot robot, RobotTask task) {
 //        return calculateDistance(robot.getPose(), task.getDestinations().get(1));
 //    }
-//}
+}

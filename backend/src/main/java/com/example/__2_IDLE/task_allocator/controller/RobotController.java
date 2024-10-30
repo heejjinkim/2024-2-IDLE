@@ -4,6 +4,7 @@ import com.example.__2_IDLE.global.model.robot.Robot;
 import com.example.__2_IDLE.global.model.robot.RobotService;
 import com.example.__2_IDLE.global.model.robot.request.AddRobotRequest;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,10 +12,10 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RobotController {
-    private RobotService robotService;
 
+    private final RobotService robotService;
 
     //로봇 추가 (FRONT -> SPRING -> ROS)
     @PostMapping("/robot/add")

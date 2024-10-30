@@ -1,6 +1,7 @@
 package com.example.__2_IDLE.global.model.robot;
 
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -11,8 +12,10 @@ import java.util.Optional;
 @Slf4j
 @Getter
 @Component
+@RequiredArgsConstructor
 public class RobotRepository {
-    private Map<String, Robot> robotMap = new HashMap<>();
+
+    private final Map<String, Robot> robotMap = new HashMap<>();
 
     // 로봇을 리턴하는 함수
     public Optional<Robot> getRobot (String namespace) {

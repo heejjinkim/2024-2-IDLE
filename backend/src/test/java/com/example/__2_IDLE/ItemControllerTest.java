@@ -9,6 +9,6 @@ public class ItemControllerTest {
 
     @Test
     public void getAllItemTest() {
-        System.out.println(itemController.getAllItem());
+        System.out.println(itemController.getAllItems());
     }
 }
