@@ -10,20 +10,29 @@ import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
+import com.example.__2_IDLE.task.allocator.TaskAllocator;
 import com.example.__2_IDLE.task.model.HungarianAlgorithm;
 import com.example.__2_IDLE.task.model.RobotTask;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+
+import edu.wpi.rail.jrosbridge.Ros;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
 public class TaskModule {
 
+    private final Ros ros;
     private final RobotContainer robotContainer;
+    private final Map<String, TaskAllocator> taskAllocatorMap = new HashMap<>(); // 로봇 이름: TaskAllocator 맵
+
 
     // 선행 논문과 동일하게 큐의 마지막 작업과 새로운 작업 상관성만 고려
     public void taskAllocation(Order order, Station station) {
@@ -105,7 +114,18 @@ public class TaskModule {
                         }
                     }
 
+                    bestRobot.startTask();
                     bestRobot.getTaskQueue().add(newTask);
+
+                    // TODO: TaskAllocator 생성 및 첫 번째 작업을 전송
+                    // 로봇의 첫 작업인 경우에만 TaskAllocator를 생성하고 시작
+                    if (!taskAllocatorMap.containsKey(bestRobot.getNamespace())) {
+                        TaskAllocator taskAllocator = new TaskAllocator(bestRobot, ros);
+                        taskAllocatorMap.put(bestRobot.getNamespace(), taskAllocator);
+                        taskAllocator.startAllocate();
+                        log.info("TaskAllocator 생성 및 시작: {}", bestRobot.getNamespace());
+                    }
+
                     log.info("new task item: {}", orderItems.get(startIndex + taskIndex).getName());
                     log.info("best robot: {}", bestRobot.getNamespace());
                 }
@@ -115,9 +135,6 @@ public class TaskModule {
             startIndex += taskCount;
         }
     }
-
-
-
 
     private Robot findBestRobot(RobotTask newTask) {
         // 현재 로봇의 작업 상태 받아오기
