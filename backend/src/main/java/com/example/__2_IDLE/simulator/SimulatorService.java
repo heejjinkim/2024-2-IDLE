@@ -3,27 +3,31 @@ package com.example.__2_IDLE.simulator;
 
 import com.example.__2_IDLE.global.model.Customer;
 import com.example.__2_IDLE.global.model.Order;
-import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.global.model.enums.RobotNamespace;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.robot_manager.robot.Robot;
 import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
 import com.example.__2_IDLE.task.TaskModule;
 import com.example.__2_IDLE.task.model.RobotTask;
+import edu.wpi.rail.jrosbridge.Ros;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class SimulatorService {
     private final ScheduleModule scheduleModule = new ScheduleModule();
     private final RobotContainer robotContainer = new RobotContainer();
-    private void printOrderList(List<Order> orders){
+
+    private void printOrderList(List<Order> orders) {
         System.out.println("생성된 Order 출력 : ");
         System.out.println("-------------------------------------------");
-        for(int i = 0 ; i < orders.size() ; i++){
+        for (int i = 0; i < orders.size(); i++) {
             System.out.println(orders.get(i).toString());
         }
     }
@@ -58,17 +62,29 @@ public class SimulatorService {
         }
     }
 
-    public void run(){
+    public void run() {
+        // ROS 객체 생성
+        Ros ros = new Ros("localhost");
+
+        // 로봇 네임스페이스 목록 생성
+        List<String> namespaces = List.of(RobotNamespace.values())
+                .stream()
+                .map(RobotNamespace::getNamespace)
+                .collect(Collectors.toList());
+
+        // RobotContainer Bean 가져오기
+        robotContainer.initRobotMap(ros, namespaces);
+
         // 주문 생성기
         List<Order> orders = generateRandomOrders(10);
         printOrderList(orders);
 
         // 스케쥴링
         List<ScheduleTask> tasks = new ArrayList<>();
-        for(int i = 0 ; i < orders.size() ; i++){
+        for (int i = 0; i < orders.size(); i++) {
             ScheduleTask task = new ScheduleTask();
             task.setId(i);
-            if(orders.get(i).isSameDayDelivery()){
+            if (orders.get(i).isSameDayDelivery()) {
                 task.setUrgency(1);
             }
             task.setCreateTime(LocalDateTime.now());
@@ -84,18 +100,8 @@ public class SimulatorService {
         System.out.println("로봇에게 작업 할당");
         System.out.println("-------------------------------------------");
 
-        // TODO: 로봇 데이터 받아오기
-        Robot robot1 = new Robot("Robot1", new Pose(5, 5));
-        Robot robot2 = new Robot("Robot2", new Pose(10, 5));
-        Robot robot3 = new Robot("Robot3", new Pose(15, 5));
-
-        // 로봇 컨테이너에 로봇 추가
-        robotContainer.addRobot(robot1);
-        robotContainer.addRobot(robot2);
-        robotContainer.addRobot(robot3);
-
         // TaskModule 생성
-        TaskModule taskModule = new TaskModule(robotContainer);
+        TaskModule taskModule = new TaskModule(ros, robotContainer);
 
         // 물품 3개
         Item item1 = Item.ITEM_A;
@@ -121,6 +127,7 @@ public class SimulatorService {
         printRobotTaskQueues();
 
     }
+
     public static List<Order> generateRandomOrders(int numberOfOrders) {
         List<Order> orders = new ArrayList<>();
         Random random = new Random();
@@ -139,7 +146,7 @@ public class SimulatorService {
             }
 
             boolean oneDayShipping = random.nextBoolean();
-            orders.add(Order.of(i+1, customer, productList, oneDayShipping));
+            orders.add(Order.of(i + 1, customer, productList, oneDayShipping));
         }
 
         return orders;
