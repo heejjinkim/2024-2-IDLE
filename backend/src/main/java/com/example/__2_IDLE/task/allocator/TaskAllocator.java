@@ -1,7 +1,7 @@
 package com.example.__2_IDLE.task.allocator;
 
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.robot_manager.robot.Robot;
+import com.example.__2_IDLE.global.model.robot.Robot;
 import com.example.__2_IDLE.ros.ROSValueGetter;
 import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.data_sender.publisher.GoalPublisher;

@@ -7,11 +7,10 @@ import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.RobotNamespace;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.robot_manager.robot.Robot;
-import com.example.__2_IDLE.robot_manager.robot.RobotContainer;
+import com.example.__2_IDLE.global.model.robot.Robot;
+import com.example.__2_IDLE.global.model.robot.RobotRepository;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
 import com.example.__2_IDLE.task.TaskModule;
-import com.example.__2_IDLE.task.model.RobotTask;
 import edu.wpi.rail.jrosbridge.Ros;
 
 import java.time.LocalDateTime;
@@ -22,7 +21,7 @@ import java.util.stream.Collectors;
 
 public class SimulatorService {
     private final ScheduleModule scheduleModule = new ScheduleModule();
-    private final RobotContainer robotContainer = new RobotContainer();
+    private final RobotRepository robotRepository = new RobotRepository();
 
     private void printOrderList(List<Order> orders) {
         System.out.println("생성된 Order 출력 : ");
@@ -33,13 +32,13 @@ public class SimulatorService {
     }
 
     private void printRobotTaskQueues() {
-        List<Robot> allRobots = robotContainer.getAllRobots();
+        List<Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots) {
             System.out.println(robot.getNamespace() + " 작업 큐:");
             if (robot.getTaskQueue().isEmpty()) {
                 System.out.println(" - 작업 없음");
             } else {
-                for (RobotTask task : robot.getTaskQueue()) {
+                for (PickingTask task : robot.getTaskQueue()) {
                     System.out.print(" - 선반: " + task.getDestinations().getFirst());
 
                     if (task.getDestinations().size() > 2) {
@@ -55,10 +54,6 @@ public class SimulatorService {
                     System.out.println(" -> 선반: " + task.getDestinations().getLast());
                 }
             }
-            System.out.println("현재 상태: " + robot.getState().stateName());
-            System.out.println(
-                    "현재 작업: " + (robot.getRobotTask() != null ? robot.getRobotTask().getDestinations()
-                            .getFirst() : "없음"));
         }
     }
 
@@ -72,8 +67,8 @@ public class SimulatorService {
                 .map(RobotNamespace::getNamespace)
                 .collect(Collectors.toList());
 
-        // RobotContainer Bean 가져오기
-        robotContainer.initRobotMap(ros, namespaces);
+        // RobotRepository 초기화
+        robotRepository.initRobotMap(ros, namespaces);
 
         // 주문 생성기
         List<Order> orders = generateRandomOrders(10);
@@ -101,7 +96,7 @@ public class SimulatorService {
         System.out.println("-------------------------------------------");
 
         // TaskModule 생성
-        TaskModule taskModule = new TaskModule(ros, robotContainer);
+        TaskModule taskModule = new TaskModule(ros, robotRepository);
 
         // 물품 3개
         Item item1 = Item.ITEM_A;

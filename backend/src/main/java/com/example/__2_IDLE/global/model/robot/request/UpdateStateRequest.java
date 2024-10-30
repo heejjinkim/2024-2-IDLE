@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.robot_manager.request;
+package com.example.__2_IDLE.global.model.robot.request;
 
 import lombok.Getter;
 import lombok.Setter;
