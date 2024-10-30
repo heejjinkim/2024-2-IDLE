@@ -1,5 +1,6 @@
 package com.example.__2_IDLE.global.model.robot;
 
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -8,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
+@Getter
 @Component
 public class RobotRepository {
     private Map<String, Robot> robotMap = new HashMap<>();

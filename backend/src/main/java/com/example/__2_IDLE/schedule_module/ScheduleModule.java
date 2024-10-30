@@ -1,6 +1,7 @@
 package com.example.__2_IDLE.schedule_module;
 
 import com.example.__2_IDLE.global.model.ScheduleTask;
+import com.example.__2_IDLE.task_allocator.model.TaskWave;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.LocalDateTime;
@@ -10,8 +11,11 @@ import java.util.List;
 
 @Slf4j
 public class ScheduleModule {
+
     private final double WAIT_TIME_WEIGHT = 0.2;
     private final double SCALE = 100.00; // 소수 셋째자리에서 반올림
+    private final int WAVE_SIZE = 50;
+
     private List<ScheduleTask> taskQueue = new ArrayList<>();
 
     private double calculatePriority(double waitTime, int urgency) {
@@ -54,5 +58,13 @@ public class ScheduleModule {
 
     public void printTask(ScheduleTask task) {
         System.out.println(task);
+    }
+
+    public TaskWave getTaskWave() {
+        if (taskQueue.isEmpty()) {
+            throw new ArrayIndexOutOfBoundsException("taskQueue is empty");
+        }
+        List<ScheduleTask> wave = taskQueue.subList(0, Math.min(WAVE_SIZE, taskQueue.size()));
+        return TaskWave.of(wave);
     }
 }

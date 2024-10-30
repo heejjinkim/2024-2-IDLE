@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -43,6 +44,10 @@ public class RobotService {
 
     public void removeRobot(String namespace) {
         robotRepository.removeRobot(namespace);
+    }
+
+    public Map<String, Robot> getAllRobots() {
+        return robotRepository.getRobotMap();
     }
 
     public Optional<Robot> getRobot(String namespace) {
