@@ -3,16 +3,19 @@ package com.example.__2_IDLE.global.model.robot;
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class RobotService {
-    private RobotRepository robotRepository;
+
+    private final RobotRepository robotRepository;
 
     public void updateShelf(String namespace, Shelf shelf) {
         Optional<Robot> optionalRobot = getRobot(namespace);
@@ -43,6 +46,10 @@ public class RobotService {
 
     public void removeRobot(String namespace) {
         robotRepository.removeRobot(namespace);
+    }
+
+    public Map<String, Robot> getAllRobots() {
+        return robotRepository.getRobotMap();
     }
 
     public Optional<Robot> getRobot(String namespace) {
