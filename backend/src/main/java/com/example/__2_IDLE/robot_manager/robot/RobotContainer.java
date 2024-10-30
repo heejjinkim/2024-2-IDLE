@@ -1,19 +1,38 @@
 package com.example.__2_IDLE.robot_manager.robot;
 
+import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
-import java.util.ArrayList;
-import java.util.List;
+import com.example.__2_IDLE.ros.ROSValueGetter;
+import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
+import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
+import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
+import edu.wpi.rail.jrosbridge.Ros;
+
+import java.util.*;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 public class RobotContainer {
     private Map<String, Robot> robotMap = new HashMap<>();
+
+    public void initRobotMap(Ros ros, List<String> namespaces) {
+        for (String namespace : namespaces) {
+            TopicRobotPoseMessageHandler messageHandler = new TopicRobotPoseMessageHandler(namespace);
+            TopicDataListener topicDataListener = new TopicDataListener(ros, messageHandler);
+            ROSValueGetter<RobotPoseMessageValue> rosValueGetter = new ROSValueGetter<>(topicDataListener, messageHandler);
+
+            RobotPoseMessageValue poseValue = rosValueGetter.getValue();
+            if (poseValue != null) {
+                Pose pose = new Pose(poseValue.getX(), poseValue.getY());
+                Robot robot = new Robot(namespace, pose);
+                addRobot(robot);
+                log.info("[RobotContainer] Initialized robot '{}' with position x: {}, y: {}", namespace, pose.getX(), pose.getY());
+            }
+        }
+    }
 
     // 로봇을 리턴하는 함수
     public Optional<Robot> getRobot (String namespace) {
