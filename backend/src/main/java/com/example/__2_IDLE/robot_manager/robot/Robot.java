@@ -1,15 +1,16 @@
 package com.example.__2_IDLE.robot_manager.robot;
 
-import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.robot_manager.state.RobotState;
 import com.example.__2_IDLE.robot_manager.state.RobotStateContainer;
 import com.example.__2_IDLE.task.model.RobotTask;
-import java.util.LinkedList;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.LinkedList;
 
 @Getter
 @Setter
@@ -45,5 +46,17 @@ public class Robot {
     public void resetRobotTask() {
         this.robotTask = null;
         this.shelf = null;
+    }
+
+    public RobotTask getFirstTaskInQueue() {
+        return taskQueue.isEmpty() ? null : taskQueue.getFirst();
+    }
+
+    public void addRobotTaskToQueue(RobotTask newTask) {
+        taskQueue.add(newTask);
+    }
+
+    public void completeCurrentTask() {
+        taskQueue.removeFirst();
     }
 }
