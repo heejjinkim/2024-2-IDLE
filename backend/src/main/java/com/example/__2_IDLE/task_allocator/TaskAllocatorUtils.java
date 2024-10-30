@@ -8,15 +8,14 @@ import com.example.__2_IDLE.task_allocator.controller.ItemController;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
 import com.example.__2_IDLE.task_allocator.controller.StationController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TaskAllocatorUtils {
-
 
     private final RobotController robotController;
     private final ItemController itemController;

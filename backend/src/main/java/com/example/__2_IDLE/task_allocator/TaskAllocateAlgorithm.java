@@ -6,8 +6,8 @@ import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.robot.Robot;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 @Getter
 @Setter
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class TaskAllocateAlgorithm {
 
     private final TaskAllocatorUtils taskAllocatorUtils;
