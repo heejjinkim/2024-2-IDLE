@@ -24,16 +24,19 @@ public class ScheduleModule {
     }
 
     public void run(){
-        scheduleTask();
+        while (!taskQueue.isEmpty()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.info("예상치 못한 오류가 발생했습니다");
+            }
+            updatePriority();
+            taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
+        }
     }
 
     public void addAllTask(List<ScheduleTask> tasks) {
         taskQueue.addAll(tasks);
-    }
-
-    public void scheduleTask() {
-        updatePriority();
-        taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
     }
 
     private void updatePriority() {
@@ -50,6 +53,10 @@ public class ScheduleModule {
             throw new ArrayIndexOutOfBoundsException("taskQueue is empty");
         }
         List<ScheduleTask> wave = taskQueue.subList(0, Math.min(WAVE_SIZE, taskQueue.size()));
-        return TaskWave.of(wave);
+        TaskWave taskWave = TaskWave.of(wave);
+
+        wave.clear();
+
+        return taskWave;
     }
 }
