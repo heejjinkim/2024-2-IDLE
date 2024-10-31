@@ -5,17 +5,21 @@ import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Slf4j
 @Getter
 @Setter
 public class TaskWave {
 
-    private final List<PickingTask> wave;
+    private List<PickingTask> wave;
 
     private TaskWave(List<PickingTask> pickingTasks) {
         this.wave = pickingTasks;
@@ -29,54 +33,41 @@ public class TaskWave {
     private static List<PickingTask> createPickingTaskList(List<ScheduleTask> scheduleTasks) {
         AtomicReference<Long> pickingTaskId = new AtomicReference<>(0L);
         return scheduleTasks.stream()
-                .flatMap(scheduleTask -> {
-                    pickingTaskId.updateAndGet(v -> v + 1);
-                    return convertScheduleTaskToPickingTask(pickingTaskId.get(), scheduleTask);
-                })
-                .toList();
+                .flatMap(scheduleTask -> convertScheduleTaskToPickingTask(pickingTaskId, scheduleTask))
+                .collect(Collectors.toList());
     }
 
-    private static Stream<PickingTask> convertScheduleTaskToPickingTask(Long pickingTaskId, ScheduleTask scheduleTask) {
+    private static Stream<PickingTask> convertScheduleTaskToPickingTask(AtomicReference<Long> pickingTaskId, ScheduleTask scheduleTask) {
         Order order = scheduleTask.getOrder();
         Long orderId = order.getId();
         List<Item> orderItems = order.getOrderItems();
 
         return orderItems.stream()
-                .map(orderItem -> new PickingTask(pickingTaskId, orderId, orderItem));
+                .map(orderItem -> {
+                    PickingTask task = new PickingTask(pickingTaskId.get(), orderId, orderItem);
+                    pickingTaskId.updateAndGet(v -> v + 1);
+                    return task;
+                });
     }
 
     public int size() {
         return wave.size();
     }
 
-    public PickingTask getNext() {
-        return wave.get(0);
-    }
-
-    public boolean hasNext() {
-        return !wave.isEmpty();
-    }
-
     public List<PickingTask> getWave() {
-        return List.copyOf(wave);
-    }
-
-    public void removeTask(PickingTask pickingTask) {
-        wave.remove(pickingTask);
-    }
-
-    public PickingTask getById(Long id) {
-        return wave.stream()
-                .filter(pickingTask -> pickingTask.getId().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new NoSuchElementException("일치하는 PickingTask가 존재하지 않습니다."));
-    }
-
-    public void removeAllTask(List<PickingTask> stronglyCorrelatedTasks) {
-        wave.removeAll(stronglyCorrelatedTasks);
+        return wave;
     }
 
     public boolean isEmpty() {
         return wave.isEmpty();
+    }
+
+    public boolean isAllTaskAllocated() {
+        for (PickingTask task : wave) {
+            if (!task.isAllocated()) {
+                return false;
+            }
+        }
+        return true;
     }
 }
