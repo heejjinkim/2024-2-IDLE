@@ -61,4 +61,8 @@ public enum Station {
     allocatedTaskList.addTask(pickingTask);
     unallocatedTaskList.remove(pickingTask);
   }
+
+  public void completeTask(PickingTask pickingTask) {
+    allocatedTaskList.removeSameItemTasks(pickingTask);
+  }
 }

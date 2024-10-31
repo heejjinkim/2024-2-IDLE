@@ -6,13 +6,17 @@ import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
 import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
 import edu.wpi.rail.jrosbridge.Ros;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
 
 @Slf4j
+@Getter
 @Component
+@RequiredArgsConstructor
 public class RobotRepository {
     private Map<String, Robot> robotMap = new HashMap<>();
 
