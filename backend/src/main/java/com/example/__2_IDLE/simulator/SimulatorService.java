@@ -3,16 +3,9 @@ package com.example.__2_IDLE.simulator;
 
 import com.example.__2_IDLE.global.model.Customer;
 import com.example.__2_IDLE.global.model.Order;
-import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
-import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.global.model.robot.Robot;
-import com.example.__2_IDLE.global.model.robot.RobotRepository;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
-import com.example.__2_IDLE.task.TaskModule;
-import com.example.__2_IDLE.task_allocator.TaskAllocator;
-import org.springframework.scheduling.config.Task;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
