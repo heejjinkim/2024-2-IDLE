@@ -3,14 +3,16 @@ package com.example.__2_IDLE.global.model.enums;
 import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.STATION_NOT_FOUND;
 
 import com.example.__2_IDLE.global.exception.RestApiException;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.task_allocator.model.AllocatedTaskList;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
-import com.example.__2_IDLE.task_allocator.model.UnallocatedTaskList;
 import lombok.Getter;
 
 @Getter
@@ -22,16 +24,12 @@ public enum Station {
   private final Long id;
   private final String name;
   private Pose pose;
-  private final UnallocatedTaskList unallocatedTaskList = new UnallocatedTaskList();
-  private final AllocatedTaskList allocatedTaskList = new AllocatedTaskList();
-  // todo: 할당된 작업들 보관 장소 만들어야
-  private int timeCost;
+  private List<PickingTask> tasks = new ArrayList<>();
 
   Station(Long id, String name, Pose pose) {
     this.id = id;
     this.name = name;
     this.pose = pose;
-    this.timeCost = 0;
   }
 
   public static Station getById(Long id) {
@@ -41,24 +39,30 @@ public enum Station {
         .orElseThrow(() -> new RestApiException(STATION_NOT_FOUND));
   }
 
-  public void addToUnallocatedList(PickingTask pickingTask) {
-    unallocatedTaskList.add(pickingTask);
+  public void addTask(PickingTask pickingTask) {
+    tasks.add(pickingTask);
   }
 
   public List<PickingTask> getTasksByItem(Item targetItem) {
-    return unallocatedTaskList.getTasksByItem(targetItem);
+    return tasks.stream()
+            .filter(task -> task.getItem() == targetItem)
+            .filter(task -> !task.isAllocated())
+            .collect(Collectors.toList());
   }
 
-  public Stream<PickingTask> unallocatedTaskStream() {
-    return unallocatedTaskList.stream();
+  public boolean hasTask(PickingTask task) { // todo: unallocated가 아니라 전체 작업인 Container 대상으로
+    return tasks.contains(task);
   }
 
-  public boolean hasTaskInUnallocatedList(PickingTask task) {
-    return unallocatedTaskList.has(task);
+  public int countUnallocatedTask() {
+    return (int) tasks.stream()
+            .filter(task -> !task.isAllocated())
+            .count();
   }
 
-  public void allocateTask(PickingTask pickingTask) {
-    allocatedTaskList.addTask(pickingTask);
-    unallocatedTaskList.remove(pickingTask);
+  public Optional<PickingTask> pickOneUnallocatedTask() {
+    return tasks.stream()
+            .filter(task -> !task.isAllocated())
+            .findFirst();
   }
 }

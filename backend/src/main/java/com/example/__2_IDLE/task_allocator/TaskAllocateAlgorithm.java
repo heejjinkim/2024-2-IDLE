@@ -1,121 +1,132 @@
 package com.example.__2_IDLE.task_allocator;
 
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.robot.Robot;
+import com.example.__2_IDLE.task_allocator.controller.RobotController;
+import com.example.__2_IDLE.task_allocator.controller.StationController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicReference;
 
-@Getter
-@Setter
 @Slf4j
 @RequiredArgsConstructor
 public class TaskAllocateAlgorithm {
 
-    private final TaskAllocatorUtils taskAllocatorUtils;
     private TaskWave taskWave;
+    private final RobotController robotController;
+    private final StationController stationController;
 
-    public void setUnallocatedList() {
-        Long stationCount = taskAllocatorUtils.getStationCount();
-        AtomicLong atomicStationId = new AtomicLong(0L);
-        taskWave.getWave()
-                .forEach(pickingTask -> {
-                    long stationId = atomicStationId.get();
-                    long nextStationId = stationId + 1;
-                    taskAllocatorUtils.addToUnallocatedList(stationId, pickingTask);
-                    updateStationId(atomicStationId, nextStationId, stationCount);
-                });
+    public void init(TaskWave taskWave) { // task wave의 모든 작업을 스테이션에 골고루 분배
+        this.taskWave = taskWave;
+
+        List<PickingTask> wave = taskWave.getWave();
+        int stationCount = Station.values().length;
+        AtomicReference<Long> stationId = new AtomicReference<>(1L);
+
+        for (PickingTask task : wave) {
+            Station station = Station.getById(stationId.get());
+            station.addTask(task);
+            updateStationId(stationId, stationCount);
+        }
+    }
+
+    private void updateStationId(AtomicReference<Long> stationId, int stationCount) {
+        stationId.set(stationId.get() + 1);
+        if (stationId.get() > stationCount) {
+            stationId.set(1L);
+        }
     }
 
     public void step1() {
-        Map<String, Robot> allRobots = taskAllocatorUtils.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
-            Pose robotCurrentPose = robot.getCurrentPose();
-            PickingTask nearestTask = findNearestTask(robotCurrentPose);
-
+            Optional<PickingTask> optionalNearestTask = taskWave.getWave().stream()
+                    .filter(task -> !task.isAllocated())
+                    .min(Comparator.comparing(task -> Pose.distance(robot.getCurrentPose(), task.getPose())));
+            PickingTask nearestTask = optionalNearestTask.get();
             allocateTask(robot, nearestTask);
         }
     }
 
-    public void step2() {
-        Map<String, Robot> allRobots = taskAllocatorUtils.getAllRobots();
-        List<Station> allStations = taskAllocatorUtils.getAllStations();
-        try {
-            for (Robot robot : allRobots.values()) {
-                PickingTask lastTask = robot.getLastTask();
-                Station targetStation = findTargetStation(allStations, lastTask);
-                Item targetItem = lastTask.getItem();
-                List<PickingTask> stronglyCorrelatedTasks = targetStation.getTasksByItem(targetItem);
-                allocateAllTask(robot, stronglyCorrelatedTasks);
-            }
-        } catch (NoSuchElementException e) {
-            log.info(e.getMessage());
+    private void allocateTask(Robot robot, PickingTask task) {
+        robot.allocateTask(task);
+        task.setAllocateTrue();
+    }
+
+    private void allocateAllTask(Robot robot, List<PickingTask> tasks) {
+        for (PickingTask task : tasks) {
+            allocateTask(robot, task);
         }
     }
 
-    public void step3() {
-        Map<String, Robot> allRobots = taskAllocatorUtils.getAllRobots();
-        List<Station> allStations = taskAllocatorUtils.getAllStations();
+    public void step2() {
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
-            Item targetItem = lastTask.getItem();
-            List<PickingTask> weaklyCorrelatedTasks = allStations.stream()
-                    .flatMap(station -> station.getTasksByItem(targetItem).stream())
-                    .toList();
-            allocateAllTask(robot, weaklyCorrelatedTasks);
+            Optional<Station> optionalStation = getStationByTask(lastTask);
+            if (optionalStation.isEmpty()) {
+                break;
+            }
+            Station station = optionalStation.get();
+            List<PickingTask> stronglyCorrelatedTask = stationController.getNotAllocatedTaskSameItemOf(lastTask, station);
+            allocateAllTask(robot, stronglyCorrelatedTask);
+        }
+    }
+
+    private Optional<Station> getStationByTask(PickingTask lastTask) {
+        Optional<Station> optionalStation = stationController.getStationHasTask(lastTask);
+        if (optionalStation.isEmpty()) {
+            log.info("해당 작업을 할당받은 스테이션이 없습니다");
+            return Optional.empty();
+        }
+        return optionalStation;
+    }
+
+    public void step3() {
+        Map<String, Robot> allRobots = robotController.getAllRobots();
+        for (Robot robot : allRobots.values()) {
+            PickingTask lastTask = robot.getLastTask();
+            Optional<Station> optionalLastTaskStation = getStationByTask(lastTask);
+            if (optionalLastTaskStation.isEmpty()) {
+                break;
+            }
+            Station lastTaskStation = optionalLastTaskStation.get();
+            List<Station> otherStations = stationController.getAllStationsExcept(lastTaskStation);
+            for (Station station : otherStations) {
+                List<PickingTask> weaklyCorrelatedTask = stationController.getNotAllocatedTaskSameItemOf(lastTask, station);
+                allocateAllTask(robot, weaklyCorrelatedTask);
+            }
         }
     }
 
     public void step4() {
-        Map<String, Robot> allRobots = taskAllocatorUtils.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
-            if (robot.hasTask()) {
-                Optional<PickingTask> minCostTaskInMaxTimeCostStation = taskAllocatorUtils.getMinCostTaskInMaxTimeCostStation(robot);
-                allocateTask(robot, minCostTaskInMaxTimeCostStation.get());
+            Optional<Station> optionalStationHasMaxTimeCost = stationController.getStationHasMaxTimeCost();
+            if (optionalStationHasMaxTimeCost.isEmpty()) {
+                log.info("모든 작업이 할당되었습니다");
+                return;
             }
+            Station stationHasMaxTimeCost = optionalStationHasMaxTimeCost.get();
+            Optional<PickingTask> optionalPickingTask = stationHasMaxTimeCost.pickOneUnallocatedTask();
+            if (optionalPickingTask.isEmpty()) {
+                log.info("모든 작업이 할당되었습니다");
+                return;
+            }
+            allocateTask(robot, optionalPickingTask.get());
         }
     }
 
-    private void allocateTask(Robot robot, PickingTask pickingTask) {
-        robot.allocateTask(pickingTask);
-        taskWave.removeTask(pickingTask);
-        taskAllocatorUtils.allocateTask(pickingTask);
-    }
 
-    private void allocateAllTask(Robot robot, List<PickingTask> pickingTaskList) {
-        robot.allocateAllTask(pickingTaskList);
-        taskWave.removeAllTask(pickingTaskList);
-        taskAllocatorUtils.allocateAllTask(pickingTaskList);
-    }
-
-    private static Station findTargetStation(List<Station> allStations, PickingTask pickingTask) {
-        Optional<Station> optionalTargetStation = allStations.stream()
-                .filter(station -> station.getUnallocatedTaskList().has(pickingTask))
-                .findFirst();
-        return optionalTargetStation.get();
-    }
-
-    private PickingTask findNearestTask(Pose robotCurrentPose) {
-        Optional<PickingTask> optionalNearestTask = taskWave.getWave().stream()
-                .min(Comparator.comparing(
-                        pickingTask -> Pose.distance(pickingTask.getPose(), robotCurrentPose))
-                );
-        return optionalNearestTask.get();
-    }
-
-    private void updateStationId(AtomicLong atomicStationId, long nextStationId, Long stationCount) {
-        atomicStationId.set(nextStationId % stationCount == 0 ? 1L : nextStationId % stationCount);
-    }
-
-    public boolean isAllTasksAllocated() {
-        return taskWave.isEmpty();
+    public boolean isDone() {
+        return taskWave.isAllTaskAllocated();
     }
 }

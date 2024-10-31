@@ -12,65 +12,46 @@ public class TaskAllocator {
     private final TaskAllocateAlgorithm algorithm;
     private final ScheduleModule scheduleModule;
 
-    private TaskWave fetchTaskWave() {
-        return scheduleModule.getTaskWave();
-    }
-
     public void start() {
-        while (true) {
-            try {
-                algorithm.setTaskWave(fetchTaskWave());
-                run();
-            } catch (ArrayIndexOutOfBoundsException e) {
-                log.info("scheduling queue is empty");
-                return;
-            }
+        try {
+            run();
+        } catch (ArrayIndexOutOfBoundsException e) {
+            log.info("scheduling queue is empty");
         }
     }
 
     private void run() {
         initAlgorithm();
 
-        if (algorithm.isAllTasksAllocated()) {
+        if (algorithm.isDone()) {
             return;
         }
 
-        boolean flag = false;
-        while (!flag) {
-            flag = runAlgorithm();
+        boolean isDone = false;
+        while (!isDone) {
+            isDone = runAlgorithm();
         }
     }
 
     private void initAlgorithm() {
-        algorithm.setUnallocatedList();
-        allocateNearestTask(); // step1
+        algorithm.init(fetchTaskWave());
+        algorithm.step1();
     }
 
     private boolean runAlgorithm() {
-        allocateStronglyCorrelatedTask(); // step2
-        if (algorithm.isAllTasksAllocated()) {
+        algorithm.step2();
+        if (algorithm.isDone()) {
             return true;
         }
-        allocateWeaklyCorrelatedTask(); // step3
-        if (algorithm.isAllTasksAllocated()) {
+        algorithm.step3();
+        if (algorithm.isDone()) {
             return true;
         }
         algorithm.step4();
-        if (algorithm.isAllTasksAllocated()) {
-            return true;
-        }
-        return false;
+        return algorithm.isDone();
     }
 
-    private void allocateWeaklyCorrelatedTask() {
-        algorithm.step3();
-    }
-
-    private void allocateStronglyCorrelatedTask() {
-        algorithm.step2();
-    }
-
-    private void allocateNearestTask() {
-        algorithm.step1();
+    private TaskWave fetchTaskWave() {
+        return scheduleModule.getTaskWave();
     }
 }

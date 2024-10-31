@@ -25,21 +25,10 @@ public class ScheduleModule {
 
     public void run(){
         scheduleTask();
-        while(!taskQueue.isEmpty()){
-            ScheduleTask task = pollTask();
-            printTask(task);
-        }
     }
 
-    public void addTask(List<ScheduleTask> tasks) {
+    public void addAllTask(List<ScheduleTask> tasks) {
         taskQueue.addAll(tasks);
-    }
-
-    public ScheduleTask pollTask() {
-        if (!taskQueue.isEmpty()) {
-            return taskQueue.remove(0);
-        }
-        return null;
     }
 
     public void scheduleTask() {
@@ -54,10 +43,6 @@ public class ScheduleModule {
             int urgency = task.getUrgency();
             task.setPriority(calculatePriority(waitTime, urgency));
         }
-    }
-
-    public void printTask(ScheduleTask task) {
-        System.out.println(task);
     }
 
     public TaskWave getTaskWave() {
