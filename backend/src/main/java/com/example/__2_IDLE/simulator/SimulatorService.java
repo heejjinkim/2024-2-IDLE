@@ -22,8 +22,19 @@ import java.util.Random;
 public class SimulatorService {
 
     private final ScheduleModule scheduleModule = new ScheduleModule();
+    private final RobotRepository robotRepository = new RobotRepository();
 
     public void run(){
+
+        Robot robot1 = new Robot("Robot1", new Pose(5, 5));
+        Robot robot2 = new Robot("Robot2", new Pose(10, 5));
+        Robot robot3 = new Robot("Robot3", new Pose(15, 5));
+
+        // 로봇 컨테이너에 로봇 추가
+        robotRepository.addRobot(robot1);
+        robotRepository.addRobot(robot2);
+        robotRepository.addRobot(robot3);
+
         List<Order> orders = generateRandomOrders(10);
 
         List<ScheduleTask> tasks = createScheduleTasks(orders);
