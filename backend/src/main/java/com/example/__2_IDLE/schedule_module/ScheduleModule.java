@@ -24,27 +24,19 @@ public class ScheduleModule {
     }
 
     public void run(){
-        scheduleTask();
-        while(!taskQueue.isEmpty()){
-            ScheduleTask task = pollTask();
-            printTask(task);
+        while (!taskQueue.isEmpty()) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                log.info("예상치 못한 오류가 발생했습니다");
+            }
+            updatePriority();
+            taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
         }
     }
 
-    public void addTask(List<ScheduleTask> tasks) {
+    public void addAllTask(List<ScheduleTask> tasks) {
         taskQueue.addAll(tasks);
-    }
-
-    public ScheduleTask pollTask() {
-        if (!taskQueue.isEmpty()) {
-            return taskQueue.remove(0);
-        }
-        return null;
-    }
-
-    public void scheduleTask() {
-        updatePriority();
-        taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
     }
 
     private void updatePriority() {
@@ -56,15 +48,15 @@ public class ScheduleModule {
         }
     }
 
-    public void printTask(ScheduleTask task) {
-        System.out.println(task);
-    }
-
     public TaskWave getTaskWave() {
         if (taskQueue.isEmpty()) {
             throw new ArrayIndexOutOfBoundsException("taskQueue is empty");
         }
         List<ScheduleTask> wave = taskQueue.subList(0, Math.min(WAVE_SIZE, taskQueue.size()));
-        return TaskWave.of(wave);
+        TaskWave taskWave = TaskWave.of(wave);
+
+        wave.clear();
+
+        return taskWave;
     }
 }
