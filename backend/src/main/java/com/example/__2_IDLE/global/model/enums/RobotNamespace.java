@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum RobotNamespace {
     ROBOT1("tb1"),
     ROBOT2("tb2"),
-//    ROBOT3("tb3"),
+    ROBOT3("tb3"),
     ;
 
     private final String namespace;

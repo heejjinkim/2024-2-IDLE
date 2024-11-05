@@ -34,6 +34,8 @@ public class RobotTaskAssignerRepository {
     }
 
     public static void startAllTaskAssigners() {
-        taskAssignerMap.forEach((robotName, taskAssigner) -> {taskAssigner.start();});
+        taskAssignerMap.forEach((robotName, taskAssigner) -> {
+            taskAssigner.start();
+        });
     }
 }

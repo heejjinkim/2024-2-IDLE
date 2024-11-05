@@ -15,10 +15,12 @@ import com.example.__2_IDLE.task_allocator.controller.RobotController;
 import com.example.__2_IDLE.task_allocator.controller.StationController;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
+@Service
 @Slf4j
 public class SimulatorService {
 
@@ -40,23 +42,11 @@ public class SimulatorService {
 
         // 주문 생성 시작
         List<Order> orders = generateRandomOrders(100); // 주문 50개 생성
-        printOrderList(orders);
+//        printOrderList(orders);
         List<ScheduleTask> tasks = createScheduleTasks(orders);
         scheduleModule.addAllTask(tasks);
 
-        // 한 웨이브 단위로 스케줄링, 작업 할당 반복
-        while (!scheduleModule.isTaskQueueEmpty()) {
-            if (scheduleModule.run()) {
-                boolean isDone = taskAllocator.start();// 한 wave에 대해 작업 할당 끝
-                if (isDone) {
-                    // 작업 할당 모듈이 완료되면, 로봇에게 작업 부여 시작
-                    if (RobotTaskAssignerRepository.isTaskAssignerMapEmpty()) {
-                        RobotTaskAssignerRepository.init(ros, robotRepository.getAllRobots());
-                    }
-                    RobotTaskAssignerRepository.startAllTaskAssigners();
-                }
-            }
-        }
+        processWaveSchedulingAndTaskAllocation(ros);
     }
 
     public static List<ScheduleTask> createScheduleTasks(List<Order> orders) {
@@ -97,6 +87,23 @@ public class SimulatorService {
         }
 
         return orders;
+    }
+
+    private void processWaveSchedulingAndTaskAllocation(Ros ros) {
+        while (!scheduleModule.isTaskQueueEmpty()) {
+            if (scheduleModule.run()) {
+                if (taskAllocator.start()) { // 한 wave에 대해 작업 할당
+                    initializeTaskAssignersIfNeeded(ros);
+                    RobotTaskAssignerRepository.startAllTaskAssigners();
+                }
+            }
+        }
+    }
+
+    private void initializeTaskAssignersIfNeeded(Ros ros) {
+        if (RobotTaskAssignerRepository.isTaskAssignerMapEmpty()) {
+            RobotTaskAssignerRepository.init(ros, robotRepository.getAllRobots());
+        }
     }
 
     private void printOrderList(List<Order> orders) {
