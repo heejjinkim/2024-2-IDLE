@@ -1,14 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { theme } from '../components/theme';
 import { 
-  AppBar, Toolbar, Typography, Container, Grid, Card, CardHeader, CardContent,
-  Button, Select, MenuItem, SelectChangeEvent, ThemeProvider, createTheme, 
+  AppBar, Toolbar, Typography, Container, Grid, Card, CardHeader, CardContent, Select, MenuItem, SelectChangeEvent, ThemeProvider, 
   CssBaseline, Box
 } from '@mui/material';
 import {StatusIndicator, StatusDot} from '../components/status'; 
-import { fontWeight, styled } from '@mui/system';
-import ROSLIB, {ActionClient} from 'roslib';
-import { Map, Maximize2, Minimize2, Navigation } from 'lucide-react';
+import ROSLIB from 'roslib';
+import { Map, Navigation } from 'lucide-react';
 import { IconWrapper } from '../components/icon';
 import { MapArea } from '../components/map';
 import { base64ToUint8Array } from '../util/base64ToUnit8Array';
@@ -55,8 +53,7 @@ export default function HomePage() {
         const imageData = base64ToUint8Array(base64Data);
         const width = messageData.width;
         const height = messageData.height;
-        const encoding = messageData.encoding;
-
+      
         const canvas = document.createElement("canvas");
         canvas.width = width;
         canvas.height = height;
