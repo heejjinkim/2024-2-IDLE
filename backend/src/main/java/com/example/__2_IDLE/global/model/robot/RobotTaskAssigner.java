@@ -1,0 +1,138 @@
+package com.example.__2_IDLE.global.model.robot;
+
+import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.global.model.enums.Shelf;
+import com.example.__2_IDLE.global.model.enums.Station;
+import com.example.__2_IDLE.ros.ROSValueGetter;
+import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
+import com.example.__2_IDLE.ros.data_sender.publisher.GoalPublisher;
+import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
+import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
+import com.example.__2_IDLE.task_allocator.controller.StationController;
+import com.example.__2_IDLE.task_allocator.model.PickingTask;
+import edu.wpi.rail.jrosbridge.Ros;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+
+@Slf4j
+public class RobotTaskAssigner {
+
+    private final Robot robot;
+    private final Ros ros;
+    private final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
+    private final TopicRobotPoseMessageHandler messageHandler;
+    private final TopicDataListener dataListener;
+    private final ROSValueGetter<RobotPoseMessageValue> valueGetter;
+    private final ScheduledExecutorService scheduler;
+    private final StationController stationController;
+    private boolean isRunning = false;
+
+    public RobotTaskAssigner(Robot robot, Ros ros) {
+        this.robot = robot;
+        this.ros = ros;
+        this.messageHandler = new TopicRobotPoseMessageHandler(robot.getNamespace());
+        this.dataListener = new TopicDataListener(ros, messageHandler);
+        this.valueGetter = new ROSValueGetter<>(dataListener, messageHandler);
+        this.scheduler = Executors.newScheduledThreadPool(1);
+        this.stationController = new StationController(); // TODO: 수정필요
+    }
+
+    // TaskQueue 작업들을 로봇에게 할당 시작
+    public void start() {
+        if (isRunning) {
+            log.info("로봇 {}의 TaskAssigner가 이미 실행 중입니다.", robot.getNamespace());
+            return;
+        }
+        isRunning = true;
+        PickingTask robotTask = robot.getFirstTask();
+        if (robotTask == null) {
+            log.info("로봇 {}의 모든 작업이 완료되었습니다.", robot.getNamespace());
+            isRunning = false;
+            return;
+        }
+        processDestinations(robotTask, false);
+    }
+
+    private void processDestinations(PickingTask currentTask, boolean skipShelf) {
+        Station station = stationController.getStationHasTask(currentTask).get();
+        Shelf shelf = currentTask.getItem().getShelf();
+
+        if (!skipShelf) {
+            log.info("로봇 {}: 선반 {}로 이동합니다.", robot.getNamespace(), shelf);
+            sendGoalToRobot(shelf.getPose());
+
+            startTrackingRobotPose(shelf.getPose(), () -> {
+                log.info("로봇 {}: {}을 피킹하고 있습니다", robot.getNamespace(), shelf);
+                scheduler.schedule(() -> moveToStation(currentTask, station), 5, TimeUnit.SECONDS);
+            });
+        } else {
+            moveToStation(currentTask, station);
+        }
+    }
+
+    private void moveToStation(PickingTask currentTask, Station station) {
+        Pose stationPose = station.getPose();
+        log.info("로봇 {}: 스테이션 {}로 이동합니다.", robot.getNamespace(), station);
+        sendGoalToRobot(stationPose);
+
+        startTrackingRobotPose(stationPose, () -> {
+            log.info("로봇 {}: {}을 {}에 서비스하고 있습니다.", robot.getNamespace(), currentTask.getItem(), station);
+            scheduler.schedule(() -> completeOrContinue(currentTask, station), 5, TimeUnit.SECONDS);
+        });
+    }
+
+    private void completeOrContinue(PickingTask currentTask, Station station) {
+        robot.completeCurrentTask(station);
+        PickingTask nextTask = robot.getFirstTask();
+
+        if (nextTask != null && nextTask.getItem().equals(currentTask.getItem())) {
+            log.info("로봇 {}: 동일한 선반을 다른 스테이션으로 이동시킵니다.", robot.getNamespace());
+            processDestinations(nextTask, true); // 동일 물품이므로 선반을 생략하고 스테이션으로 바로 이동
+        } else {
+            log.info("로봇 {}: {}을 원위치 시키기 위해 이동합니다.", robot.getNamespace(), currentTask.getItem().getShelf());
+            Pose shelfPose = currentTask.getItem().getShelf().getPose();
+            sendGoalToRobot(shelfPose);
+
+            startTrackingRobotPose(shelfPose, () -> {
+                log.info("로봇 {}: 선반 {}을 원위치 시키고 있습니다.", robot.getNamespace(), currentTask.getItem().getShelf());
+                scheduler.schedule(() -> doNextTask(nextTask), 5, TimeUnit.SECONDS);
+            });
+        }
+    }
+
+    private void doNextTask(PickingTask nextTask) {
+        if (nextTask != null) {
+            processDestinations(nextTask, false); // 다음 작업은 선반부터 시작
+        } else {
+            log.info("로봇 {}의 모든 작업이 완료되었습니다.", robot.getNamespace());
+        }
+    }
+
+    private void sendGoalToRobot(Pose destination) {
+        GoalPublisher goalPublisher = new GoalPublisher(ros, robot.getNamespace(), destination);
+        goalPublisher.publish();
+    }
+
+    private void startTrackingRobotPose(Pose destination, Runnable onGoalReached) {
+        final ScheduledFuture<?>[] trackingTask = new ScheduledFuture<?>[1];
+
+        trackingTask[0] = scheduler.scheduleAtFixedRate(() -> {
+            RobotPoseMessageValue currentPosition = valueGetter.getValue();
+            if (isGoalReached(currentPosition, destination)) {
+                dataListener.stopListening();
+                trackingTask[0].cancel(false); // 현재 작업 취소
+                onGoalReached.run(); // 다음 목적지 작업 수행
+            }
+        }, 0, 1, TimeUnit.SECONDS);  // 1초마다 주기적으로 위치 확인 작업 수행
+    }
+
+    private boolean isGoalReached(RobotPoseMessageValue currentPosition, Pose destination) {
+        double dx = currentPosition.getX() - destination.getX();
+        double dy = currentPosition.getY() - destination.getY();
+        return Math.sqrt(dx * dx + dy * dy) <= tolerance;
+    }
+}

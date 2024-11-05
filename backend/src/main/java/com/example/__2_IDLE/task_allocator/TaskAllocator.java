@@ -12,25 +12,27 @@ public class TaskAllocator {
     private final TaskAllocateAlgorithm algorithm;
     private final ScheduleModule scheduleModule;
 
-    public void start() {
+    public boolean start() {
         try {
-            run();
+            return run();
         } catch (ArrayIndexOutOfBoundsException e) {
             log.info("scheduling queue is empty");
+            return true;
         }
     }
 
-    private void run() {
+    private boolean run() {
         initAlgorithm();
 
         if (algorithm.isDone()) {
-            return;
+            return true;
         }
 
         boolean isDone = false;
         while (!isDone) {
             isDone = runAlgorithm();
         }
+        return isDone;
     }
 
     private void initAlgorithm() {

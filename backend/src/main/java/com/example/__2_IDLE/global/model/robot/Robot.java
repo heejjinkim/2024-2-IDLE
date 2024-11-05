@@ -56,6 +56,8 @@ public class Robot {
     public void completeCurrentTask(Station station) {
         // 동일 Station, 동일 Item Task 다 제거
         PickingTask pickingTask = taskQueue.removeFirst();
-        station.completeTask(pickingTask);
+
+        List<Long> completedTaskIds = station.completeTask(pickingTask);
+        taskQueue.removeIf(task -> completedTaskIds.contains(task.getId()));
     }
 }

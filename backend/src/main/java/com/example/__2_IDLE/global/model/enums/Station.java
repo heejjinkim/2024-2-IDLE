@@ -15,9 +15,9 @@ import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.STAT
 
 @Getter
 public enum Station {
-    STATION_A(1L, "Station A", new Pose(5, 0)), // TODO: 좌표 수정 필요
-    STATION_B(2L, "Station B", new Pose(15, 0)),
-    STATION_C(3L, "Station C", new Pose(20, 0));
+    STATION_A(1L, "Station A", new Pose(-3, -1.5)), // TODO: 좌표 수정 필요
+    STATION_B(2L, "Station B", new Pose(-3, 0)),
+    STATION_C(3L, "Station C", new Pose(-3, 1.5));
 
     private final Long id;
     private final String name;
@@ -62,5 +62,17 @@ public enum Station {
         return tasks.stream()
                 .filter(task -> !task.isAllocated())
                 .findFirst();
+    }
+
+    public List<Long> completeTask(PickingTask pickingTask) {
+        List<Long> removedIds = tasks.stream()
+                .filter(task -> task.getItem().equals(pickingTask.getItem()))
+                .filter(PickingTask::isAllocated)
+                .map(PickingTask::getId)
+                .toList();
+
+        tasks.removeIf(task -> task.getItem().equals(pickingTask.getItem()));
+
+        return removedIds;
     }
 }

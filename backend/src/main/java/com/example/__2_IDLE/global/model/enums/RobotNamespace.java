@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum RobotNamespace {
     ROBOT1("tb1"),
-//    ROBOT2("tb2"),
+    ROBOT2("tb2"),
 //    ROBOT3("tb3"),
     ;
 

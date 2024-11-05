@@ -60,7 +60,7 @@ public class TopicDataListener extends ROSDataListener implements ROSTopic {
     public void stopListening() {
         if (echoBack != null) {
             echoBack.unsubscribe();
-            log.info("Unsubscribed from topic: {}", echoBack.getName());
+//            log.info("Unsubscribed from topic: {}", echoBack.getName());
         }
     }
 
