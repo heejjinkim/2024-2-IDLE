@@ -1,6 +1,5 @@
 package com.example.__2_IDLE;
 
-import com.example.__2_IDLE.simulator.SimulatorService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -9,8 +8,6 @@ public class Application {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Application.class, args);
-		SimulatorService simulatorService = new SimulatorService();
-		simulatorService.run();
 	}
 
 }
