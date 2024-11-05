@@ -1,125 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { theme } from '../components/theme';
 import { 
   AppBar, Toolbar, Typography, Container, Grid, Card, CardHeader, CardContent,
   Button, Select, MenuItem, SelectChangeEvent, ThemeProvider, createTheme, 
   CssBaseline, Box
 } from '@mui/material';
-import { styled } from '@mui/system';
+import {StatusIndicator, StatusDot} from '../components/status'; 
+import { fontWeight, styled } from '@mui/system';
 import ROSLIB, {ActionClient} from 'roslib';
 import { Map, Maximize2, Minimize2, Navigation } from 'lucide-react';
-
-type MapType = 'warehouse1' | 'warehouse2';
-
-interface Robot {
-  namespace: string;
-  destination: string;
-  battery: number;
-}
-interface MapMetaData {
-  map_load_time: { secs: number; nsecs: number };
-  resolution: number;
-  width: number;
-  height: number;
-  origin: {
-    position: { x: number; y: number; z: number };
-    orientation: { x: number; y: number; z: number; w: number };
-  };
-}
-
-interface OccupancyGrid {
-  header: {
-    seq: number;
-    stamp: { secs: number; nsecs: number };
-    frame_id: string;
-  };
-  info: MapMetaData;
-  data: number[];
-}
-
-// Lucide 아이콘을 MUI 아이콘 스타일로 감싸는 컴포넌트
-const IconWrapper = styled('span')(({ theme }) => ({
-  display: 'inline-flex',
-  marginRight: theme.spacing(1),
-  verticalAlign: 'middle',
-}));
-
-// 커스텀 테마 생성
-const theme = createTheme({
-  palette: {
-    mode: 'light',
-    primary: {
-      main: '#424242',
-    },
-    secondary: {
-      main: '#757575',
-    },
-    background: {
-      default: '#f5f5f5',
-      paper: '#ffffff',
-    },
-  },
-  typography: {
-    fontFamily: " 'Noto Sans KR', sans-serif",
-  },
-  components: {
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-        },
-      },
-    },
-    MuiCard: {
-      styleOverrides: {
-        root: {
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-          borderRadius: '8px',
-        },
-      },
-    },
-  },
-});
-
-const StyledBatteryIndicator = styled('span')(({ theme }) => ({
-  backgroundColor: theme.palette.grey[200],
-  color: theme.palette.grey[800],
-  padding: theme.spacing(0.5, 1),
-  borderRadius: '16px',
-  fontSize: '0.75rem',
-  fontWeight: 'medium',
-}));
-
-const MapArea = styled(Box)(({ theme }) => ({
-  height: '500px',
-  backgroundColor: theme.palette.grey[100],
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  border: `1px solid ${theme.palette.grey[300]}`,
-  borderRadius: theme.shape.borderRadius,
-  position: 'relative',
-}));
-
-const StatusIndicator = styled('span')<{ connected: boolean }>(({ theme, connected }) => ({
-  display: 'inline-flex',
-  alignItems: 'center',
-  color: connected ? theme.palette.success.main : theme.palette.error.main,
-  fontWeight: 'bold',
-  fontSize : '20px'
-}));
-
-const StatusDot = styled('span')<{ connected: boolean }>(({ theme, connected }) => ({
-  width: 14,
-  height: 14,
-  borderRadius: '30%',
-  backgroundColor: connected ? theme.palette.success.main : theme.palette.error.main,
-  marginRight: theme.spacing(1.5),
-}));
+import { IconWrapper } from '../components/icon';
+import { MapArea } from '../components/map';
+import { base64ToUint8Array } from '../util/base64ToUnit8Array';
+import { Robot } from '../model/Robot';
 
 export default function HomePage() {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [mapImage, setMapImage] = useState<string|null>(null);
-  const [selectedMap, setSelectedMap] = useState<MapType>('warehouse1');
   const [rosConnection, setRosConnection] = useState<boolean>(false);
   const [robots, setRobots] = useState<Robot[]>([
     { namespace: 'tb1', destination: '', battery: 80 },
@@ -128,18 +24,7 @@ export default function HomePage() {
   ]);
 
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
-  const [message, setMessage] = useState<string | null>(null);
 
-  function base64ToUint8Array(base64: string): Uint8Array {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  }
-  
   useEffect(() => {
       const rosInstance = new ROSLIB.Ros({
           url: 'ws://localhost:9090'
@@ -210,10 +95,6 @@ export default function HomePage() {
       setRos(rosInstance);
   }, []);
 
-  const handleMapChange = (value: MapType) => {
-    setSelectedMap(value);
-  };
-
   const handleDestinationChange = (robotId: string, event: SelectChangeEvent<string>) => {
     const destination = event.target.value;
     setRobots(robots.map(robot => 
@@ -224,7 +105,6 @@ export default function HomePage() {
   };
 
   function sendGoal(nameSpace: string, destination : string) {
-    console.log("여기")
     if(!ros) return;
     var destinationX = 0.0;
     var destinationY = 0.0;
@@ -293,37 +173,16 @@ export default function HomePage() {
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default', width: '100%' }}>
         <AppBar position="static" color="primary" elevation={0}>
           <Toolbar>
-            <Typography variant="h6">Fleet Management System</Typography>
-          </Toolbar>
-        </AppBar>
-        <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, mb: 3 }}>
-              <Box>
-                <Button
-                  sx={{ px: 4 }}
-                  variant={selectedMap === 'warehouse1' ? 'contained' : 'outlined'}
-                  onClick={() => handleMapChange('warehouse1')}
-                  startIcon={<IconWrapper>1</IconWrapper>}
-                >
-                  패키징 스테이션
-                </Button>
-                <Button
-                  sx={{ px: 4 }}
-                  variant={selectedMap === 'warehouse2' ? 'contained' : 'outlined'}
-                  onClick={() => handleMapChange('warehouse2')}
-                  startIcon={<IconWrapper>2</IconWrapper>}
-                  disabled
-                >
-                  입하장
-                </Button>
-              </Box>
-
-              <StatusIndicator connected={rosConnection}>
+            <Box sx={{ display: 'flex', justifyContent : 'space-between', width: '100%',  alignItems: 'center' }}>
+              <Typography component="h1" variant="h6" sx={{fontWeight : 'bold'}}>IDLE_FMS</Typography>
+             <StatusIndicator connected={rosConnection}>
                 <StatusDot connected={rosConnection} />
                 {rosConnection ? '연결중' : '연결 없음'}
               </StatusIndicator>
-            </Box>
-
+              </Box> 
+          </Toolbar>
+        </AppBar>
+        <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
           <Grid container spacing={3}>
             <Grid item xs={12} lg={8}>
               <Card>
@@ -366,9 +225,6 @@ export default function HomePage() {
                         <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
                           {robot.namespace}
                         </Typography>
-                        <StyledBatteryIndicator>
-                          배터리 {robot.battery}%
-                        </StyledBatteryIndicator>
                       </Box>
                       <Select
                         value={robot.destination}
