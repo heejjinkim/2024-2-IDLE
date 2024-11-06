@@ -5,42 +5,57 @@ import com.example.__2_IDLE.global.model.Customer;
 import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.global.model.robot.RobotRepository;
+import com.example.__2_IDLE.global.model.robot.RobotService;
+import com.example.__2_IDLE.global.model.robot.RobotTaskAssignerRepository;
 import com.example.__2_IDLE.schedule_module.ScheduleModule;
+import com.example.__2_IDLE.task_allocator.TaskAllocateAlgorithm;
+import com.example.__2_IDLE.task_allocator.TaskAllocator;
+import com.example.__2_IDLE.task_allocator.controller.RobotController;
+import com.example.__2_IDLE.task_allocator.controller.StationController;
+import edu.wpi.rail.jrosbridge.Ros;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
+@Service
+@Slf4j
 public class SimulatorService {
 
+    private static final int ORDER_NUM = 50;
     private final ScheduleModule scheduleModule = new ScheduleModule();
     private final RobotRepository robotRepository = new RobotRepository();
+    private final RobotService robotService = new RobotService(robotRepository);
+    private final RobotController robotController = new RobotController(robotService);
+    private final StationController stationController = new StationController();
+    private final TaskAllocateAlgorithm taskAllocateAlgorithm = new TaskAllocateAlgorithm(robotController, stationController);
+    private final TaskAllocator taskAllocator = new TaskAllocator(taskAllocateAlgorithm, scheduleModule);
 
-    public void run(){
 
-        Robot robot1 = new Robot("Robot1", new Pose(5, 5));
-        Robot robot2 = new Robot("Robot2", new Pose(10, 5));
-        Robot robot3 = new Robot("Robot3", new Pose(15, 5));
+    public void run() {
+        // ROS 객체 생성
+        Ros ros = new Ros("localhost");
 
-        // 로봇 컨테이너에 로봇 추가
-        robotRepository.addRobot(robot1);
-        robotRepository.addRobot(robot2);
-        robotRepository.addRobot(robot3);
+        // RobotRepository 초기화
+        robotRepository.initRobotMap(ros);
 
-        List<Order> orders = generateRandomOrders(10);
-
+        // 주문 생성 시작
+        List<Order> orders = generateRandomOrders(ORDER_NUM); // 주문 50개 생성
+//        printOrderList(orders);
         List<ScheduleTask> tasks = createScheduleTasks(orders);
         scheduleModule.addAllTask(tasks);
-        scheduleModule.run();
+
+        processWaveSchedulingAndTaskAllocation(ros);
     }
 
     public static List<ScheduleTask> createScheduleTasks(List<Order> orders) {
         List<ScheduleTask> tasks = new ArrayList<>();
-        for(int i = 0; i < orders.size() ; i++){
+        for (int i = 0; i < orders.size(); i++) {
             ScheduleTask task = new ScheduleTask();
             task.setId(i);
-            if(orders.get(i).isSameDayDelivery()){
+            if (orders.get(i).isSameDayDelivery()) {
                 task.setUrgency(1);
             }
             task.setCreateTime(LocalDateTime.now());
@@ -60,7 +75,8 @@ public class SimulatorService {
             List<Item> productList = new ArrayList<>();
             List<Item> items = List.of(Item.values());
 
-            // 5개 랜덤하게 생성
+            // TODO:맵 변경 후, 8로 변경 필요
+            // 1~5개 랜덤하게 생성
             int numberOfProducts = random.nextInt(5) + 1;
             for (int j = 0; j < numberOfProducts; j++) {
                 int randomIndex = random.nextInt(items.size());
@@ -68,16 +84,33 @@ public class SimulatorService {
             }
 
             boolean oneDayShipping = random.nextBoolean();
-            orders.add(Order.of(i+1, customer, productList, oneDayShipping));
+            orders.add(Order.of(i + 1, customer, productList, oneDayShipping));
         }
 
         return orders;
     }
 
-    private void printOrderList(List<Order> orders){
+    private void processWaveSchedulingAndTaskAllocation(Ros ros) {
+        while (!scheduleModule.isTaskQueueEmpty()) {
+            if (scheduleModule.run()) {
+                if (taskAllocator.start()) { // 한 wave에 대해 작업 할당
+                    initializeTaskAssignersIfNeeded(ros);
+                    RobotTaskAssignerRepository.startAllTaskAssigners();
+                }
+            }
+        }
+    }
+
+    private void initializeTaskAssignersIfNeeded(Ros ros) {
+        if (RobotTaskAssignerRepository.isTaskAssignerMapEmpty()) {
+            RobotTaskAssignerRepository.init(ros, robotRepository.getAllRobots());
+        }
+    }
+
+    private void printOrderList(List<Order> orders) {
         System.out.println("생성된 Order 출력 : ");
         System.out.println("-------------------------------------------");
-        for(int i = 0 ; i < orders.size() ; i++){
+        for (int i = 0; i < orders.size(); i++) {
             System.out.println(orders.get(i).toString());
         }
     }

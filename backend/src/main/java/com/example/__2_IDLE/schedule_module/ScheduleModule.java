@@ -23,16 +23,10 @@ public class ScheduleModule {
         return Math.round(priority * SCALE) / SCALE;
     }
 
-    public void run(){
-        while (!taskQueue.isEmpty()) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                log.info("예상치 못한 오류가 발생했습니다");
-            }
-            updatePriority();
-            taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
-        }
+    public boolean run() {
+        updatePriority();
+        taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
+        return true;
     }
 
     public void addAllTask(List<ScheduleTask> tasks) {
@@ -54,9 +48,12 @@ public class ScheduleModule {
         }
         List<ScheduleTask> wave = taskQueue.subList(0, Math.min(WAVE_SIZE, taskQueue.size()));
         TaskWave taskWave = TaskWave.of(wave);
-
-        wave.clear();
+        taskQueue.removeAll(wave);
 
         return taskWave;
+    }
+
+    public boolean isTaskQueueEmpty() {
+        return taskQueue.isEmpty();
     }
 }
