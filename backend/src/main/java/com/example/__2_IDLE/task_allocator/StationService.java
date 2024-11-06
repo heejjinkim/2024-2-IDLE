@@ -1,14 +1,16 @@
-package com.example.__2_IDLE.task_allocator.controller;
+package com.example.__2_IDLE.task_allocator;
 
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+@Service
 @Slf4j
-public class StationController {
+public class StationService {
 
     public List<PickingTask> getNotAllocatedTaskSameItemOf(PickingTask task, Station station) {
         List<PickingTask> result = new ArrayList<>();

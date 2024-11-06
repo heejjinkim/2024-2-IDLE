@@ -1,8 +1,9 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot;
 
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
-import lombok.AllArgsConstructor;
+import com.example.__2_IDLE.robot.model.Robot;
+import edu.wpi.rail.jrosbridge.Ros;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,10 @@ import java.util.Optional;
 public class RobotService {
 
     private final RobotRepository robotRepository;
+
+    public void initRobotMap(Ros ros) {
+        robotRepository.init(ros);
+    }
 
     public void updateShelf(String namespace, Shelf shelf) {
         Optional<Robot> optionalRobot = getRobot(namespace);

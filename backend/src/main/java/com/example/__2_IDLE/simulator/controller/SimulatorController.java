@@ -1,5 +1,6 @@
-package com.example.__2_IDLE.simulator;
+package com.example.__2_IDLE.simulator.controller;
 
+import com.example.__2_IDLE.simulator.service.SimulatorService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,6 +16,12 @@ public class SimulatorController {
     @PostMapping("/start")
     public ResponseEntity<Void> start() {
         simulatorService.run();
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/add/orders")
+    public ResponseEntity<Void> addOrder() {
+        simulatorService.addRandomOrders();
         return ResponseEntity.ok().build();
     }
 }

@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot.model;
 
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Shelf;
@@ -8,7 +8,7 @@ import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.data_sender.publisher.GoalPublisher;
 import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
 import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
-import com.example.__2_IDLE.task_allocator.controller.StationController;
+import com.example.__2_IDLE.task_allocator.StationService;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.extern.slf4j.Slf4j;
@@ -23,22 +23,21 @@ public class RobotTaskAssigner {
 
     private final Robot robot;
     private final Ros ros;
-    private final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
-    private final TopicRobotPoseMessageHandler messageHandler;
+    private static final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
     private final TopicDataListener dataListener;
     private final ROSValueGetter<RobotPoseMessageValue> valueGetter;
     private final ScheduledExecutorService scheduler;
-    private final StationController stationController;
+    private final StationService stationService;
     private boolean isRunning = false;
 
     public RobotTaskAssigner(Robot robot, Ros ros) {
         this.robot = robot;
         this.ros = ros;
-        this.messageHandler = new TopicRobotPoseMessageHandler(robot.getNamespace());
+        TopicRobotPoseMessageHandler messageHandler = new TopicRobotPoseMessageHandler(robot.getNamespace());
         this.dataListener = new TopicDataListener(ros, messageHandler);
         this.valueGetter = new ROSValueGetter<>(dataListener, messageHandler);
         this.scheduler = Executors.newScheduledThreadPool(1);
-        this.stationController = new StationController(); // TODO: 수정필요
+        this.stationService = new StationService();
     }
 
     public void start() {
@@ -61,7 +60,7 @@ public class RobotTaskAssigner {
 
     private void moveToShelfOrStation(PickingTask currentTask, boolean skipShelf) {
         Shelf shelf = currentTask.getItem().getShelf();
-        Station station = stationController.getStationHasTask(currentTask).get();
+        Station station = stationService.getStationHasTask(currentTask).get();
 
         if (!skipShelf) {
             log.info("로봇 {}: 선반 {}로 이동합니다.", robot.getNamespace(), shelf);

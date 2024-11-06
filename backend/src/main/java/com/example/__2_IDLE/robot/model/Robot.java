@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot.model;
 
 import com.example.__2_IDLE.global.model.Pose;
 import java.util.LinkedList;
@@ -57,6 +57,7 @@ public class Robot {
         // 동일 Station, 동일 Item Task 다 제거
         PickingTask pickingTask = taskQueue.removeFirst();
 
+        // todo: order에 완료된 물품 갯수 ++
         List<Long> completedTaskIds = station.completeTask(pickingTask);
         taskQueue.removeIf(task -> completedTaskIds.contains(task.getId()));
     }

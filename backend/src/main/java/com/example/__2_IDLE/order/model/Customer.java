@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.global.model;
+package com.example.__2_IDLE.order.model;
 
 import lombok.Data;
 

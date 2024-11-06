@@ -1,15 +1,13 @@
 package com.example.__2_IDLE.task_allocator.model;
 
-import com.example.__2_IDLE.global.model.Order;
-import com.example.__2_IDLE.global.model.ScheduleTask;
+import com.example.__2_IDLE.order.model.Order;
+import com.example.__2_IDLE.schedule.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;

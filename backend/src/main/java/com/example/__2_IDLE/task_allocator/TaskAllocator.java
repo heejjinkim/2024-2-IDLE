@@ -1,16 +1,18 @@
 package com.example.__2_IDLE.task_allocator;
 
-import com.example.__2_IDLE.schedule_module.ScheduleModule;
+import com.example.__2_IDLE.schedule.ScheduleService;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Service
 @Slf4j
 @RequiredArgsConstructor
 public class TaskAllocator {
 
     private final TaskAllocateAlgorithm algorithm;
-    private final ScheduleModule scheduleModule;
+    private final ScheduleService scheduleService;
 
     public boolean start() {
         try {
@@ -54,6 +56,6 @@ public class TaskAllocator {
     }
 
     private TaskWave fetchTaskWave() {
-        return scheduleModule.getTaskWave();
+        return scheduleService.getTaskWave();
     }
 }
