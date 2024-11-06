@@ -12,9 +12,9 @@ import java.util.List;
 @Slf4j
 public class ScheduleModule {
 
-    private final double WAIT_TIME_WEIGHT = 0.2;
-    private final double SCALE = 100.00; // 소수 셋째자리에서 반올림
-    private final int WAVE_SIZE = 50;
+    private static final double WAIT_TIME_WEIGHT = 0.2;
+    private static final double SCALE = 100.00; // 소수 셋째자리에서 반올림
+    public static final int WAVE_SIZE = 10;
 
     private List<ScheduleTask> taskQueue = new ArrayList<>();
 

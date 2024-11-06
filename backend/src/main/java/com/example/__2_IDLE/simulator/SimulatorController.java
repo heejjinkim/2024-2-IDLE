@@ -17,4 +17,10 @@ public class SimulatorController {
         simulatorService.run();
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/add/orders")
+    public ResponseEntity<Void> addOrder() {
+        simulatorService.addRandomOrders();
+        return ResponseEntity.ok().build();
+    }
 }

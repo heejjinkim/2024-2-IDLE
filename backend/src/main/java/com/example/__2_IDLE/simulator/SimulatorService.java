@@ -1,10 +1,12 @@
 package com.example.__2_IDLE.simulator;
 
 
+import com.example.__2_IDLE.global.exception.RestApiException;
 import com.example.__2_IDLE.global.model.Customer;
 import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.global.model.robot.Robot;
 import com.example.__2_IDLE.global.model.robot.RobotRepository;
 import com.example.__2_IDLE.global.model.robot.RobotService;
 import com.example.__2_IDLE.global.model.robot.RobotTaskAssignerRepository;
@@ -18,13 +20,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.SIMULATOR_NOT_RUNNING;
+import static com.example.__2_IDLE.schedule_module.ScheduleModule.WAVE_SIZE;
 
 @Service
 @Slf4j
 public class SimulatorService {
 
-    private static final int ORDER_NUM = 50;
+    private boolean isRunning = false;
     private final ScheduleModule scheduleModule = new ScheduleModule();
     private final RobotRepository robotRepository = new RobotRepository();
     private final RobotService robotService = new RobotService(robotRepository);
@@ -32,17 +39,17 @@ public class SimulatorService {
     private final StationController stationController = new StationController();
     private final TaskAllocateAlgorithm taskAllocateAlgorithm = new TaskAllocateAlgorithm(robotController, stationController);
     private final TaskAllocator taskAllocator = new TaskAllocator(taskAllocateAlgorithm, scheduleModule);
-
+    private final Ros ros = new Ros("localhost");
+    // todo: order 전체 리스트만들어서 순회?
 
     public void run() {
-        // ROS 객체 생성
-        Ros ros = new Ros("localhost");
+        isRunning = true;
 
         // RobotRepository 초기화
         robotRepository.initRobotMap(ros);
 
         // 주문 생성 시작
-        List<Order> orders = generateRandomOrders(ORDER_NUM); // 주문 50개 생성
+        List<Order> orders = generateRandomOrders(WAVE_SIZE); // 주문 50개 생성
 //        printOrderList(orders);
         List<ScheduleTask> tasks = createScheduleTasks(orders);
         scheduleModule.addAllTask(tasks);
@@ -90,10 +97,22 @@ public class SimulatorService {
         return orders;
     }
 
+    public void addRandomOrders() {
+        if (!isRunning) { // 실행시작 버튼 안 눌렀으면 예외처리
+            throw new RestApiException(SIMULATOR_NOT_RUNNING);
+        }
+        List<Order> orders = generateRandomOrders(WAVE_SIZE);
+        List<ScheduleTask> tasks = createScheduleTasks(orders);
+        scheduleModule.addAllTask(tasks);
+
+        processWaveSchedulingAndTaskAllocation(ros);
+    }
+
     private void processWaveSchedulingAndTaskAllocation(Ros ros) {
         while (!scheduleModule.isTaskQueueEmpty()) {
             if (scheduleModule.run()) {
                 if (taskAllocator.start()) { // 한 wave에 대해 작업 할당
+//                    printRobotTaskQueueSize();
                     initializeTaskAssignersIfNeeded(ros);
                     RobotTaskAssignerRepository.startAllTaskAssigners();
                 }
@@ -112,6 +131,13 @@ public class SimulatorService {
         System.out.println("-------------------------------------------");
         for (int i = 0; i < orders.size(); i++) {
             System.out.println(orders.get(i).toString());
+        }
+    }
+
+    private void printRobotTaskQueueSize() {
+        List<Robot> allRobots = robotRepository.getAllRobots();
+        for (Robot robot : allRobots) {
+            System.out.println("robot " + robot.getNamespace() + " taskQueue size = " + robot.getTaskQueue().size());
         }
     }
 }

@@ -23,7 +23,7 @@ public class RobotTaskAssigner {
 
     private final Robot robot;
     private final Ros ros;
-    private final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
+    private static final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
     private final TopicRobotPoseMessageHandler messageHandler;
     private final TopicDataListener dataListener;
     private final ROSValueGetter<RobotPoseMessageValue> valueGetter;
