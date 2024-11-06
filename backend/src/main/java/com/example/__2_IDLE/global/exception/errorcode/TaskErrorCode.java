@@ -7,10 +7,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 @Getter
 public enum TaskErrorCode implements ErrorCode {
-  STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Station not exists"),
-  ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "Order not exists"),
-  NO_AVAILABLE_ROBOT(HttpStatus.NOT_FOUND, "No available robot found for task allocation"),
-  SIMULATOR_NOT_RUNNING(HttpStatus.SERVICE_UNAVAILABLE, "Simulator is not running"),
+  STATION_NOT_FOUND(HttpStatus.NOT_FOUND, "스테이션을 찾을 수 없습니다."),
+  SIMULATOR_NOT_RUNNING(HttpStatus.SERVICE_UNAVAILABLE, "시뮬레이터가 실행 중이지 않습니다."),
   ;
 
   private final HttpStatus httpStatus;

@@ -1,7 +1,9 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot;
 
+import com.example.__2_IDLE.global.exception.RestApiException;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.RobotNamespace;
+import com.example.__2_IDLE.robot.model.Robot;
 import com.example.__2_IDLE.ros.ROSValueGetter;
 import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+import static com.example.__2_IDLE.global.exception.errorcode.RobotErrorCode.ROBOT_NOT_FOUND;
+
 @Slf4j
 @Getter
 @Component
@@ -21,21 +25,25 @@ import java.util.*;
 public class RobotRepository {
     private Map<String, Robot> robotMap = new HashMap<>();
 
-    public void initRobotMap(Ros ros) {
+    public void init(Ros ros) {
         for (RobotNamespace robotNamespace : RobotNamespace.values()) {
-            String namespace = robotNamespace.getNamespace(); // RobotNamespace의 namespace 값 가져오기
-            TopicRobotPoseMessageHandler messageHandler = new TopicRobotPoseMessageHandler(namespace);
-            TopicDataListener topicDataListener = new TopicDataListener(ros, messageHandler);
-            ROSValueGetter<RobotPoseMessageValue> rosValueGetter = new ROSValueGetter<>(topicDataListener, messageHandler);
-
-            RobotPoseMessageValue poseValue = rosValueGetter.getValue();
-            if (poseValue != null) {
-                Pose pose = new Pose(poseValue.getX(), poseValue.getY());
-                Robot robot = new Robot(namespace, pose);
-                addRobot(robot);
-                log.info("[RobotContainer] Initialized robot '{}' with position x: {}, y: {}", namespace, pose.getX(), pose.getY());
-            }
+            String namespace = robotNamespace.getNamespace();
+            Robot robot = getRobotFromRos(ros, namespace);
+            addRobot(robot);
         }
+    }
+
+    private Robot getRobotFromRos(Ros ros, String namespace) {
+        TopicRobotPoseMessageHandler messageHandler = new TopicRobotPoseMessageHandler(namespace);
+        TopicDataListener topicDataListener = new TopicDataListener(ros, messageHandler);
+        ROSValueGetter<RobotPoseMessageValue> rosValueGetter = new ROSValueGetter<>(topicDataListener, messageHandler);
+
+        RobotPoseMessageValue poseValue = rosValueGetter.getValue();
+        if (poseValue != null) {
+            Pose pose = new Pose(poseValue.getX(), poseValue.getY());
+            return new Robot(namespace, pose);
+        }
+        throw new RestApiException(ROBOT_NOT_FOUND);
     }
 
     // 로봇을 리턴하는 함수

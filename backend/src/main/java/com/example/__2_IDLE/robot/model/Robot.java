@@ -1,4 +1,4 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot.model;
 
 import com.example.__2_IDLE.global.model.Pose;
 import java.util.LinkedList;

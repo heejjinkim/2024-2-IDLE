@@ -1,12 +1,16 @@
-package com.example.__2_IDLE.global.model.robot;
+package com.example.__2_IDLE.robot;
 
+import com.example.__2_IDLE.robot.model.RobotTaskAssigner;
+import com.example.__2_IDLE.robot.model.Robot;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Repository;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Repository
 @Slf4j
 public class RobotTaskAssignerRepository {
     private static final Map<String, RobotTaskAssigner> taskAssignerMap = new HashMap<>();

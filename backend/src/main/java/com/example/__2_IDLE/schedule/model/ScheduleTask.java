@@ -1,5 +1,6 @@
-package com.example.__2_IDLE.global.model;
+package com.example.__2_IDLE.schedule.model;
 
+import com.example.__2_IDLE.order.model.Order;
 import lombok.Data;
 import java.time.LocalDateTime;
 

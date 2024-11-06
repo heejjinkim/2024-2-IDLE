@@ -1,22 +1,26 @@
-package com.example.__2_IDLE.schedule_module;
+package com.example.__2_IDLE.schedule;
 
-import com.example.__2_IDLE.global.model.ScheduleTask;
+import com.example.__2_IDLE.order.model.Order;
+import com.example.__2_IDLE.schedule.model.ScheduleTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
+@RequiredArgsConstructor
+@Service
 @Slf4j
-public class ScheduleModule {
+public class ScheduleService {
 
     private static final double WAIT_TIME_WEIGHT = 0.2;
     private static final double SCALE = 100.00; // 소수 셋째자리에서 반올림
     public static final int WAVE_SIZE = 10;
 
-    private List<ScheduleTask> taskQueue = new ArrayList<>();
+    private final ScheduleRepository scheduleRepository;
 
     private double calculatePriority(double waitTime, int urgency) {
         double priority = WAIT_TIME_WEIGHT * waitTime + (1 - WAIT_TIME_WEIGHT) * urgency;
@@ -25,16 +29,33 @@ public class ScheduleModule {
 
     public boolean run() {
         updatePriority();
-        taskQueue.sort(Comparator.comparingDouble(ScheduleTask::getPriority).reversed());
+        scheduleRepository.sortTasksByPriority();
         return true;
     }
 
+    public void createScheduleTasks(List<Order> orders) {
+        List<ScheduleTask> tasks = new ArrayList<>();
+        for (int i = 0; i < orders.size(); i++) {
+            ScheduleTask task = new ScheduleTask();
+            task.setId(i);
+            if (orders.get(i).isSameDayDelivery()) {
+                task.setUrgency(1);
+            }
+            task.setCreateTime(LocalDateTime.now());
+            task.setOrder(orders.get(i));
+            tasks.add(task);
+        }
+        scheduleRepository.addTasks(tasks);
+    }
+
     public void addAllTask(List<ScheduleTask> tasks) {
-        taskQueue.addAll(tasks);
+        scheduleRepository.addTasks(tasks);
     }
 
     private void updatePriority() {
         LocalDateTime now = LocalDateTime.now();
+        List<ScheduleTask> taskQueue = scheduleRepository.getAllTasks();
+
         for (ScheduleTask task : taskQueue) {
             double waitTime = java.time.Duration.between(task.getCreateTime(), now).getSeconds();
             int urgency = task.getUrgency();
@@ -43,17 +64,18 @@ public class ScheduleModule {
     }
 
     public TaskWave getTaskWave() {
+        List<ScheduleTask> taskQueue = scheduleRepository.getAllTasks();
         if (taskQueue.isEmpty()) {
             throw new ArrayIndexOutOfBoundsException("taskQueue is empty");
         }
         List<ScheduleTask> wave = taskQueue.subList(0, Math.min(WAVE_SIZE, taskQueue.size()));
         TaskWave taskWave = TaskWave.of(wave);
-        taskQueue.removeAll(wave);
+        scheduleRepository.removeTasks(wave);
 
         return taskWave;
     }
 
     public boolean isTaskQueueEmpty() {
-        return taskQueue.isEmpty();
+        return scheduleRepository.isTaskQueueEmpty();
     }
 }
