@@ -24,6 +24,7 @@ import java.util.*;
 @Slf4j
 public class SimulatorService {
 
+    private static final int ORDER_NUM = 50;
     private final ScheduleModule scheduleModule = new ScheduleModule();
     private final RobotRepository robotRepository = new RobotRepository();
     private final RobotService robotService = new RobotService(robotRepository);
@@ -41,7 +42,7 @@ public class SimulatorService {
         robotRepository.initRobotMap(ros);
 
         // 주문 생성 시작
-        List<Order> orders = generateRandomOrders(100); // 주문 50개 생성
+        List<Order> orders = generateRandomOrders(ORDER_NUM); // 주문 50개 생성
 //        printOrderList(orders);
         List<ScheduleTask> tasks = createScheduleTasks(orders);
         scheduleModule.addAllTask(tasks);
