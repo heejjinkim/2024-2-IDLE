@@ -1,15 +1,15 @@
 package com.example.__2_IDLE.robot.model;
 
 import com.example.__2_IDLE.global.model.Pose;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.NoSuchElementException;
-
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Getter
 @Setter
@@ -53,12 +53,13 @@ public class Robot {
         }
     }
 
-    public void completeCurrentTask(Station station) {
+    public List<Long> completeCurrentTask(Station station) {
         // 동일 Station, 동일 Item Task 다 제거
         PickingTask pickingTask = taskQueue.removeFirst();
 
-        // todo: order에 완료된 물품 갯수 ++
         List<Long> completedTaskIds = station.completeTask(pickingTask);
         taskQueue.removeIf(task -> completedTaskIds.contains(task.getId()));
+
+        return completedTaskIds;
     }
 }

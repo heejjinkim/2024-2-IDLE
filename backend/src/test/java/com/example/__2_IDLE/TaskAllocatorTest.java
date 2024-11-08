@@ -4,7 +4,7 @@ import com.example.__2_IDLE.order.model.Order;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.order.OrderService;
 import com.example.__2_IDLE.robot.model.Robot;
-import com.example.__2_IDLE.robot.RobotRepository;
+import com.example.__2_IDLE.robot.RobotMapRepository;
 import com.example.__2_IDLE.robot.RobotService;
 import com.example.__2_IDLE.schedule.ScheduleRepository;
 import com.example.__2_IDLE.schedule.ScheduleService;
@@ -44,24 +44,24 @@ public class TaskAllocatorTest {
     }
 
     private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm() {
-        RobotRepository robotRepository = new RobotRepository();
-        RobotService robotService = new RobotService(robotRepository);
+        RobotMapRepository robotMapRepository = new RobotMapRepository();
+        RobotService robotService = new RobotService(robotMapRepository);
 
         StationService stationService = new StationService();
         RobotController robotController = new RobotController(robotService);
 
-        addRobots(robotRepository);
+        addRobots(robotMapRepository);
 
         return new TaskAllocateAlgorithm(robotController, stationService);
     }
 
-    private static void addRobots(RobotRepository robotRepository) {
+    private static void addRobots(RobotMapRepository robotMapRepository) {
         Robot robot1 = new Robot("/tb1", new Pose(0, 0));
         Robot robot2 = new Robot("/tb2", new Pose(0, 5));
         Robot robot3 = new Robot("/tb3", new Pose(0, 10));
-        robotRepository.addRobot(robot1);
-        robotRepository.addRobot(robot2);
-        robotRepository.addRobot(robot3);
+        robotMapRepository.addRobot(robot1);
+        robotMapRepository.addRobot(robot2);
+        robotMapRepository.addRobot(robot3);
     }
 
 

@@ -3,6 +3,7 @@ package com.example.__2_IDLE.robot.model;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.enums.Station;
+import com.example.__2_IDLE.order.OrderService;
 import com.example.__2_IDLE.ros.ROSValueGetter;
 import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.data_sender.publisher.GoalPublisher;
@@ -13,6 +14,7 @@ import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
@@ -21,23 +23,25 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class RobotTaskAssigner {
 
+    private static final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
+    private boolean isRunning = false;
     private final Robot robot;
     private final Ros ros;
-    private static final double tolerance = 0.5; // 0.5 이내를 도착으로 간주
     private final TopicDataListener dataListener;
     private final ROSValueGetter<RobotPoseMessageValue> valueGetter;
     private final ScheduledExecutorService scheduler;
     private final StationService stationService;
-    private boolean isRunning = false;
+    private final OrderService orderService;
 
-    public RobotTaskAssigner(Robot robot, Ros ros) {
+    public RobotTaskAssigner(Robot robot, Ros ros, StationService stationService, OrderService orderService) {
         this.robot = robot;
         this.ros = ros;
         TopicRobotPoseMessageHandler messageHandler = new TopicRobotPoseMessageHandler(robot.getNamespace());
         this.dataListener = new TopicDataListener(ros, messageHandler);
         this.valueGetter = new ROSValueGetter<>(dataListener, messageHandler);
         this.scheduler = Executors.newScheduledThreadPool(1);
-        this.stationService = new StationService();
+        this.stationService = stationService;
+        this.orderService = orderService;
     }
 
     public void start() {
@@ -60,7 +64,7 @@ public class RobotTaskAssigner {
 
     private void moveToShelfOrStation(PickingTask currentTask, boolean skipShelf) {
         Shelf shelf = currentTask.getItem().getShelf();
-        Station station = stationService.getStationHasTask(currentTask).get();
+        Station station = stationService.getStationHasTask(currentTask).get(); // todo: service 안 쓰는 방법?
 
         if (!skipShelf) {
             log.info("로봇 {}: 선반 {}로 이동합니다.", robot.getNamespace(), shelf);
@@ -78,7 +82,9 @@ public class RobotTaskAssigner {
     }
 
     private void completeOrContinue(PickingTask currentTask, Station station) {
-        robot.completeCurrentTask(station);
+        List<Long> completedTaskIds = robot.completeCurrentTask(station);
+        completedTaskIds.forEach(orderService::markItemAsCompleted); // todo: orderService 안 쓰는 법?
+
         PickingTask nextTask = robot.getFirstTask();
 
         if (nextTask != null && nextTask.getItem().equals(currentTask.getItem())) {

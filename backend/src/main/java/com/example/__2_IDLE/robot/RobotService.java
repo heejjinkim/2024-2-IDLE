@@ -16,10 +16,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class RobotService {
 
-    private final RobotRepository robotRepository;
+    private final RobotMapRepository robotMapRepository;
 
     public void initRobotMap(Ros ros) {
-        robotRepository.init(ros);
+        robotMapRepository.init(ros);
     }
 
     public void updateShelf(String namespace, Shelf shelf) {
@@ -46,18 +46,18 @@ public class RobotService {
         if (getRobot(robot.getNamespace()).isPresent()) {
             log.info("이미 로봇 {}가 존재합니다.", robot.getNamespace());
         }
-        robotRepository.addRobot(robot);
+        robotMapRepository.addRobot(robot);
     }
 
     public void removeRobot(String namespace) {
-        robotRepository.removeRobot(namespace);
+        robotMapRepository.removeRobot(namespace);
     }
 
     public Map<String, Robot> getAllRobots() {
-        return robotRepository.getRobotMap();
+        return robotMapRepository.getRobotMap();
     }
 
     public Optional<Robot> getRobot(String namespace) {
-        return robotRepository.getRobot(namespace);
+        return robotMapRepository.getRobot(namespace);
     }
 }
