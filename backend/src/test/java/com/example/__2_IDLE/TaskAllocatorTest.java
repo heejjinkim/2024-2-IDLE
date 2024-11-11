@@ -1,5 +1,6 @@
 package com.example.__2_IDLE;
 
+import com.example.__2_IDLE.order.OrderRepository;
 import com.example.__2_IDLE.order.model.Order;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.order.OrderService;
@@ -31,11 +32,12 @@ public class TaskAllocatorTest {
 
     @BeforeEach
     void initField() {
-        this.taskAllocateAlgorithm = makeTaskAllocateAlgorithm();
-
         ScheduleRepository scheduleRepository = new ScheduleRepository();
         ScheduleService scheduleService = new ScheduleService(scheduleRepository);
-        OrderService orderService = new OrderService();
+        OrderRepository orderRepository = new OrderRepository();
+        OrderService orderService = new OrderService(orderRepository);
+
+        this.taskAllocateAlgorithm = makeTaskAllocateAlgorithm(orderService);
 
         List<Order> orders = orderService.generateRandomOrders();
         scheduleService.createScheduleTasks(orders);
@@ -43,11 +45,11 @@ public class TaskAllocatorTest {
         this.taskAllocator = new TaskAllocator(taskAllocateAlgorithm, scheduleService);
     }
 
-    private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm() {
+    private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm(OrderService orderService) {
         RobotMapRepository robotMapRepository = new RobotMapRepository();
         RobotService robotService = new RobotService(robotMapRepository);
 
-        StationService stationService = new StationService();
+        StationService stationService = new StationService(orderService);
         RobotController robotController = new RobotController(robotService);
 
         addRobots(robotMapRepository);

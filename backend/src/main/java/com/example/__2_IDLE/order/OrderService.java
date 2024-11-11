@@ -47,4 +47,9 @@ public class OrderService {
                 .orElseThrow(() -> new RestApiException(ORDER_NOT_FOUND));
         order.updateCompletedItemCount();
     }
+
+    public Order findOrderById(Long orderId) {
+        return orderRepository.findById(orderId)
+                .orElseThrow(() -> new RestApiException(ORDER_NOT_FOUND));
+    }
 }
