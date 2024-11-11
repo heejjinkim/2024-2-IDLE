@@ -53,6 +53,10 @@ public class RobotTaskAssigner {
         doNextTask(robot.getFirstTask());
     }
 
+    public boolean isRunning() {
+        return isRunning;
+    }
+
     private void doNextTask(PickingTask nextTask) {
         if (nextTask == null) {
             log.info("로봇 {}의 모든 작업이 완료되었습니다.", robot.getNamespace());

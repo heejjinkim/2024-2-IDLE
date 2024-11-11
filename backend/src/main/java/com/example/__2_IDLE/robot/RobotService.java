@@ -3,13 +3,19 @@ package com.example.__2_IDLE.robot;
 import com.example.__2_IDLE.global.model.enums.Shelf;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.robot.model.Robot;
+import com.example.__2_IDLE.robot.model.RobotTaskAssigner;
+import com.example.__2_IDLE.simulator.response.RobotStatusResponse;
+import com.example.__2_IDLE.simulator.response.TaskStatus;
+import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -17,6 +23,7 @@ import java.util.Optional;
 public class RobotService {
 
     private final RobotMapRepository robotMapRepository;
+    private final RobotTaskAssignerRepository robotTaskAssignerRepository;
 
     public void initRobotMap(Ros ros) {
         robotMapRepository.init(ros);
@@ -60,4 +67,39 @@ public class RobotService {
     public Optional<Robot> getRobot(String namespace) {
         return robotMapRepository.getRobot(namespace);
     }
+
+    public List<RobotStatusResponse> getRobotsStatus() {
+        return robotMapRepository.getRobotMap().values().stream()
+                .map(this::mapToRobotStatusResponse)
+                .collect(Collectors.toList());
+    }
+
+    private RobotStatusResponse mapToRobotStatusResponse(Robot robot) {
+        RobotTaskAssigner assigner = robotTaskAssignerRepository.getRobotTaskAssigner(robot.getNamespace());
+
+        return RobotStatusResponse.builder()
+                .name(robot.getNamespace())
+                .working(isRobotWorking(assigner))
+                .tasks(getTaskStatuses(robot))
+                .build();
+    }
+
+    private boolean isRobotWorking(RobotTaskAssigner assigner) {
+        return assigner != null && assigner.isRunning();
+    }
+
+    private List<TaskStatus> getTaskStatuses(Robot robot) {
+        return robot.getTaskQueue().stream()
+                .limit(3)
+                .map(this::mapToTaskStatus)
+                .collect(Collectors.toList());
+    }
+
+    private TaskStatus mapToTaskStatus(PickingTask task) {
+        return TaskStatus.builder()
+                .id(task.getId())
+                .item(task.getItem().name())
+                .build();
+    }
+
 }

@@ -33,11 +33,10 @@ public class SimulatorService {
     private final TaskAllocator taskAllocator;
     private final StationService stationService;
     private final RobotTaskAssignerRepository robotTaskAssignerRepository;
-    private final Ros ros = new Ros("localhost");
+    private final Ros ros;
 
     public void run() {
         isRunning = true;
-        robotService.initRobotMap(ros);
         addRandomOrders();
     }
 

@@ -1,6 +1,7 @@
 package com.example.__2_IDLE.simulator.controller;
 
 import com.example.__2_IDLE.robot.RobotService;
+import com.example.__2_IDLE.simulator.response.RobotStatusResponse;
 import com.example.__2_IDLE.simulator.response.StationStatusResponse;
 import com.example.__2_IDLE.simulator.service.SimulatorService;
 import com.example.__2_IDLE.task_allocator.StationService;
@@ -35,10 +36,16 @@ public class SimulatorController {
         return ResponseEntity.ok().build();
     }
 
-    // 피킹 스테이션 정보
+    // 피킹 스테이션 정보 반환
     @GetMapping("/station")
     public ResponseEntity<List<StationStatusResponse>> getStation() {
         stationService.getAllStationStatus();
         return ResponseEntity.ok(stationService.getAllStationStatus());
+    }
+
+    // 로봇 상태 정보 반환
+    @GetMapping("/robots")
+    public ResponseEntity<List<RobotStatusResponse>> getRobots() {
+        return ResponseEntity.ok(robotService.getRobotsStatus());
     }
 }

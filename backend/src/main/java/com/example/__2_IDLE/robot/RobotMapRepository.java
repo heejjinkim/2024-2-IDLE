@@ -9,6 +9,7 @@ import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
 import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
 import edu.wpi.rail.jrosbridge.Ros;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,14 @@ import static com.example.__2_IDLE.global.exception.errorcode.RobotErrorCode.ROB
 @Repository
 @RequiredArgsConstructor
 public class RobotMapRepository {
-    private Map<String, Robot> robotMap = new HashMap<>();
+
+    private final Ros ros;
+    private final Map<String, Robot> robotMap = new LinkedHashMap<>();
+
+    @PostConstruct
+    public void initRobotMap() {
+        init(ros);
+    }
 
     public void init(Ros ros) {
         for (RobotNamespace robotNamespace : RobotNamespace.values()) {
