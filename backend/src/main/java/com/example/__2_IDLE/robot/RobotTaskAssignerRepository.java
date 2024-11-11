@@ -1,7 +1,9 @@
 package com.example.__2_IDLE.robot;
 
-import com.example.__2_IDLE.robot.model.RobotTaskAssigner;
+import com.example.__2_IDLE.order.OrderService;
 import com.example.__2_IDLE.robot.model.Robot;
+import com.example.__2_IDLE.robot.model.RobotTaskAssigner;
+import com.example.__2_IDLE.task_allocator.StationService;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -13,31 +15,31 @@ import java.util.Map;
 @Repository
 @Slf4j
 public class RobotTaskAssignerRepository {
-    private static final Map<String, RobotTaskAssigner> taskAssignerMap = new HashMap<>();
+    private final Map<String, RobotTaskAssigner> taskAssignerMap = new HashMap<>();
 
-    public static void init(Ros ros, List<Robot> robotList) {
+    public void init(Ros ros, List<Robot> robotList, StationService stationService, OrderService orderService) {
         for (Robot robot : robotList) {
-            addRobotTaskAssigner(robot.getNamespace(), new RobotTaskAssigner(robot, ros));
+            addRobotTaskAssigner(robot.getNamespace(), new RobotTaskAssigner(robot, ros, stationService, orderService));
         }
     }
 
-    private static void addRobotTaskAssigner(String robotName, RobotTaskAssigner assigner) {
+    private void addRobotTaskAssigner(String robotName, RobotTaskAssigner assigner) {
         taskAssignerMap.put(robotName, assigner);
     }
 
-    public static RobotTaskAssigner getRobotTaskAssigner(String robotName) {
+    public RobotTaskAssigner getRobotTaskAssigner(String robotName) {
         return taskAssignerMap.get(robotName);
     }
 
-    public static void clear() {
+    public void clear() {
         taskAssignerMap.clear();
     }
 
-    public static boolean isTaskAssignerMapEmpty() {
+    public boolean isTaskAssignerMapEmpty() {
         return taskAssignerMap.isEmpty();
     }
 
-    public static void startAllTaskAssigners() {
+    public void startAllTaskAssigners() {
         taskAssignerMap.forEach((robotName, taskAssigner) -> {
             taskAssigner.start();
         });

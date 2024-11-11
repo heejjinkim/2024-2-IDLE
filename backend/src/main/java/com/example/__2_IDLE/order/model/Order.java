@@ -1,26 +1,24 @@
 package com.example.__2_IDLE.order.model;
 
 import com.example.__2_IDLE.global.model.enums.Item;
+import lombok.Builder;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import lombok.Builder;
-import lombok.Data;
-
+@Slf4j
 @Data
 @Builder
 public class Order {
 
     private Long id;
-
     private boolean isSameDayDelivery;
-
     private Customer customer;
-
-    private int completedItemCount;
-
+    private boolean isCompleted;
     private int originalItemCount;
+    private int completedItemCount;
 
     @Builder.Default
     private List<Item> orderItems = new ArrayList<>();
@@ -33,6 +31,17 @@ public class Order {
                 .isSameDayDelivery(isSameDayDelivery)
                 .completedItemCount(0)
                 .originalItemCount(orderItems.size())
+                .isCompleted(false)
                 .build();
     }
+
+    public void updateCompletedItemCount() {
+        completedItemCount++;
+        if (completedItemCount == originalItemCount) {
+            isCompleted = true;
+            log.info("Order completed! {}", id);
+        }
+        log.info("update order {} ", id);
+    }
+
 }

@@ -8,6 +8,7 @@ import com.example.__2_IDLE.robot.RobotService;
 import com.example.__2_IDLE.robot.RobotTaskAssignerRepository;
 import com.example.__2_IDLE.robot.model.Robot;
 import com.example.__2_IDLE.schedule.ScheduleService;
+import com.example.__2_IDLE.task_allocator.StationService;
 import com.example.__2_IDLE.task_allocator.TaskAllocator;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.RequiredArgsConstructor;
@@ -30,11 +31,12 @@ public class SimulatorService {
     private final RobotService robotService;
     private final OrderService orderService;
     private final TaskAllocator taskAllocator;
-    private final Ros ros = new Ros("localhost");
+    private final StationService stationService;
+    private final RobotTaskAssignerRepository robotTaskAssignerRepository;
+    private final Ros ros;
 
     public void run() {
         isRunning = true;
-        robotService.initRobotMap(ros);
         addRandomOrders();
     }
 
@@ -54,16 +56,16 @@ public class SimulatorService {
             if (scheduleService.run()) {
                 if (taskAllocator.start()) {
                     initializeTaskAssignersIfNeeded();
-                    RobotTaskAssignerRepository.startAllTaskAssigners();
+                    robotTaskAssignerRepository.startAllTaskAssigners();
                 }
             }
         }
     }
 
     private void initializeTaskAssignersIfNeeded() {
-        if (RobotTaskAssignerRepository.isTaskAssignerMapEmpty()) {
+        if (robotTaskAssignerRepository.isTaskAssignerMapEmpty()) {
             List<Robot> robotList = new ArrayList<>(robotService.getAllRobots().values());
-            RobotTaskAssignerRepository.init(ros, robotList);
+            robotTaskAssignerRepository.init(ros, robotList, stationService, orderService);
         }
     }
 

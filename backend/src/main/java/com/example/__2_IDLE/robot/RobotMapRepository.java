@@ -9,10 +9,11 @@ import com.example.__2_IDLE.ros.data_listener.topic.TopicDataListener;
 import com.example.__2_IDLE.ros.message_handler.robot.TopicRobotPoseMessageHandler;
 import com.example.__2_IDLE.ros.message_value.RobotPoseMessageValue;
 import edu.wpi.rail.jrosbridge.Ros;
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import java.util.*;
 
@@ -20,10 +21,17 @@ import static com.example.__2_IDLE.global.exception.errorcode.RobotErrorCode.ROB
 
 @Slf4j
 @Getter
-@Component
+@Repository
 @RequiredArgsConstructor
-public class RobotRepository {
-    private Map<String, Robot> robotMap = new HashMap<>();
+public class RobotMapRepository {
+
+    private final Ros ros;
+    private final Map<String, Robot> robotMap = new LinkedHashMap<>();
+
+    @PostConstruct
+    public void initRobotMap() {
+        init(ros);
+    }
 
     public void init(Ros ros) {
         for (RobotNamespace robotNamespace : RobotNamespace.values()) {
@@ -67,10 +75,5 @@ public class RobotRepository {
         } else {
             log.info("[RobotRepository-removeRobot] : 제거할 로봇 '{}'이 존재하지 않습니다.", namespace);
         }
-    }
-
-    // 모든 로봇을 리스트로 반환하는 함수
-    public List<Robot> getAllRobots() {
-        return new ArrayList<>(robotMap.values());
     }
 }

@@ -35,7 +35,6 @@ public class TaskAllocateAlgorithm {
         for (PickingTask task : wave) {
             Station station = Station.getById(stationId.get());
             station.addTask(task);
-            // todo: tasK에 station set
             updateStationId(stationId, stationCount);
         }
     }
