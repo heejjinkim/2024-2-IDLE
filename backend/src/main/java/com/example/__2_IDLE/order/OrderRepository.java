@@ -10,7 +10,7 @@ import java.util.Optional;
 @Repository
 public class OrderRepository {
 
-    private List<Order> orders;
+    private List<Order> orders = new ArrayList<>();
 
     public void save(Order order) {
         orders.add(order);
