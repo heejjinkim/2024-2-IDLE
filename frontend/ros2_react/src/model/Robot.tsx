@@ -1,5 +1,9 @@
+import { Work } from "./Work";
+
 export interface Robot {
-    namespace: string;
-    destination: string;
-    battery: number;
+    id : number;
+    name : string;
+    nowProcessing : Work | null;
+    nextProcessing : Work[] | null;
+    isWorking : boolean;
   }

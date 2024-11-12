@@ -1,28 +1,32 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { theme } from '../components/theme';
 import { 
-  AppBar, Toolbar, Typography, Container, Grid, Card, CardHeader, CardContent, Select, MenuItem, SelectChangeEvent, ThemeProvider, 
+  AppBar, Toolbar, Typography, Container, Grid, 
+  SelectChangeEvent, ThemeProvider, 
   CssBaseline, Box,
   Divider,
-  Button
+  Button,
+  TableContainer,
+  Table,
+  TableRow,
+  TableCell,
+  Paper,
+  TableHead,
+  TableBody,
 } from '@mui/material';
 import {StatusIndicator, StatusDot} from '../components/status'; 
 import ROSLIB from 'roslib';
-import { Map, Navigation, Thermometer } from 'lucide-react';
-import { IconWrapper } from '../components/icon';
 import { MapArea } from '../components/map';
 import { base64ToUint8Array } from '../util/base64ToUnit8Array';
 import { Robot } from '../model/Robot';
 import { VariableBox, VariableBoxProps } from '../components/box';
+import { PickingStationTable } from '../components/table';
+import { RobotStateTable } from '../components/RobotTable';
 
 export default function HomePage() {
   const [mapImage, setMapImage] = useState<string|null>(null);
   const [rosConnection, setRosConnection] = useState<boolean>(false);
-  const [robots, setRobots] = useState<Robot[]>([
-    { namespace: 'tb1', destination: '', battery: 80 },
-    { namespace: 'tb2', destination: '', battery: 65 },
-    { namespace: 'tb3', destination: '', battery: 90 },
-  ]);
+
 
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
   const [isRunningSimulation, setIsRunningSimulation] = useState<boolean>(false);
@@ -99,15 +103,6 @@ export default function HomePage() {
       
       setRos(rosInstance);
   }, []);
-
-  const handleDestinationChange = (robotId: string, event: SelectChangeEvent<string>) => {
-    const destination = event.target.value;
-    setRobots(robots.map(robot => 
-      robot.namespace === robotId ? { ...robot, destination } : robot
-    ));
-
-    sendGoal(robotId,destination);
-  };
 
   function sendGoal(nameSpace: string, destination : string) {
     if(!ros) return;
@@ -189,7 +184,12 @@ export default function HomePage() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default', width: '100%' }}>
-        <AppBar position="static" color="primary" elevation={0}>
+        <AppBar position="static" elevation={0}
+          sx={{
+            color: 'white',
+            backgroundColor : '#00c49a'
+          }}
+        >
           <Toolbar>
             <Box sx={{ display: 'flex', justifyContent : 'space-between', width: '100%',  alignItems: 'center' }}>
               <Typography component="h1" variant="subtitle1" sx={{fontWeight : 'bold'}}>IDLE_FMS</Typography>
@@ -219,89 +219,39 @@ export default function HomePage() {
           }} color='secondary' variant='outlined' onClick={onClickSimulationButton} >시뮬레이션 실행</Button>)}
           <VariableBox value1={shipProcess.value1} value2={shipProcess.value2}/>
         </Container>
-        <Container maxWidth={false} sx={{ mt: 4, px: 4, width: { xs: '100%',  md: '85%',},}}>
-
+        <Container maxWidth={false} sx={{ mt: 4, px: 4, width: { xs: '100%',  md: '80%',},}}>
           <Box sx={{width : '100%'}}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color:'text.primary', textAlign:'left' }}>
               실시간 모니터링 화면
             </Typography>
           </Box> 
-
-          <Grid item xs={12} lg={8}>
-              <Card>
-                <CardHeader
-                  title={
-                    <Typography variant="h6">
-                      <IconWrapper><Map size={20} /></IconWrapper>
-                      ROS2 맵
-                    </Typography>
-                  }
-                />
-                <CardContent sx={{ p: 2 }}>
+          <Grid item xs={12} lg={8} sx={{mb:10}}>
                   <MapArea>
-                    {mapImage && (
+                    {mapImage ? (
                         <img
                           src={mapImage}
                           alt="Robot Map"
                           style={{ height: '100%', width: 'auto', margin: 'auto', position: 'absolute',top: 0, bottom: 0, left: 0, right: 0 }}
                         />
-                      )}
+                      ) : 
+                      <Typography variant="h6" color="textSecondary">
+                      ROS2와 연결해주세요
+                    </Typography>}
                   </MapArea>
-                </CardContent>
-              </Card>
           </Grid>
 
-          <Box sx={{width : '100%'}}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
-              피킹 스테이션 상태
+          <Box sx={{width : '100%', mb : 2}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color:'text.primary', textAlign:'left' }}>
+              스테이션 상태
             </Typography>
-          </Box> 
-
-          <Box sx={{width : '100%'}}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
+          </Box>
+          <PickingStationTable />
+          <Box sx={{width : '100%', mb : 2}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color:'text.primary', textAlign:'left' }}>
               로봇 상태
             </Typography>
-          </Box> 
-
-          <Grid container spacing={3}>
-            <Grid item xs={12} lg={4}>
-              <Card>
-                <CardHeader
-                  title={
-                    <Typography variant="h6">
-                      <IconWrapper><Navigation size={20} /></IconWrapper>
-                      로봇 관리
-                    </Typography>
-                  }
-                />
-                <CardContent>
-                  {robots.map(robot => (
-                    <Box key={robot.namespace} sx={{ mb: 3, '&:last-child': { mb: 0 } }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'medium' }}>
-                          {robot.namespace}
-                        </Typography>
-                      </Box>
-                      <Select
-                        value={robot.destination}
-                        onChange={(event: SelectChangeEvent<string>) => handleDestinationChange(robot.namespace, event)}
-                        fullWidth
-                        size="small"
-                      >
-                        <MenuItem value="">목적지 선택</MenuItem>
-                        <MenuItem value="destination1">A구역</MenuItem>
-                        <MenuItem value="destination2">B구역</MenuItem>
-                        <MenuItem value="destination3">C구역</MenuItem>
-                        <MenuItem value="destination4">E구역</MenuItem>
-                        <MenuItem value="destination5">F구역</MenuItem>
-                        <MenuItem value="destination6">G구역</MenuItem>
-                      </Select>
-                    </Box>
-                  ))}
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
+          </Box>
+          <RobotStateTable />
         </Container>
       </Box>
     </ThemeProvider>
