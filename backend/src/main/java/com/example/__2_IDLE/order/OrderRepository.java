@@ -12,10 +12,6 @@ public class OrderRepository {
 
     private List<Order> orders = new ArrayList<>();
 
-    public void save(Order order) {
-        orders.add(order);
-    }
-
     public void saveAll(List<Order> orders) {
         this.orders.addAll(orders);
     }

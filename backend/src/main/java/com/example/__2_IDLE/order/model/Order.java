@@ -39,9 +39,8 @@ public class Order {
         completedItemCount++;
         if (completedItemCount == originalItemCount) {
             isCompleted = true;
-            log.info("Order completed! {}", id);
+            log.info("Order {} completed!", id);
         }
-        log.info("update order {} ", id);
     }
 
 }
