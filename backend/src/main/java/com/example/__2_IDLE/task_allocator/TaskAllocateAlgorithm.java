@@ -1,6 +1,5 @@
 package com.example.__2_IDLE.task_allocator;
 
-import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.robot.model.Robot;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
@@ -10,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicReference;
 
 @Component
 @Slf4j
@@ -25,35 +22,15 @@ public class TaskAllocateAlgorithm {
     private final RobotController robotController;
     private final StationService stationService;
 
-    public void init(TaskWave taskWave) { // task wave의 모든 작업을 스테이션에 골고루 분배
+    public void init(TaskWave taskWave) {
         this.taskWave = taskWave;
-
-        List<PickingTask> wave = taskWave.getWave();
-        int stationCount = Station.values().length;
-        AtomicReference<Long> stationId = new AtomicReference<>(1L);
-
-        for (PickingTask task : wave) {
-            Station station = Station.getById(stationId.get());
-            station.addTask(task);
-            updateStationId(stationId, stationCount);
-        }
-    }
-
-    private void updateStationId(AtomicReference<Long> stationId, int stationCount) {
-        stationId.set(stationId.get() + 1);
-        if (stationId.get() > stationCount) {
-            stationId.set(1L);
-        }
     }
 
     public void step1() {
         Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
-            Optional<PickingTask> optionalNearestTask = taskWave.getWave().stream()
-                    .filter(task -> !task.isAllocated())
-                    .min(Comparator.comparing(task -> Pose.distance(robot.getCurrentPose(), task.getPose())));
-            PickingTask nearestTask = optionalNearestTask.get();
-            allocateTask(robot, nearestTask);
+            PickingTask nearestPickingTask = taskWave.getNearestPickingTask(robot);
+            allocateTask(robot, nearestPickingTask);
         }
     }
 

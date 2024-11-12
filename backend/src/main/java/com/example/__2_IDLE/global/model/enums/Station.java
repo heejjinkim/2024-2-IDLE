@@ -2,6 +2,7 @@ package com.example.__2_IDLE.global.model.enums;
 
 import com.example.__2_IDLE.global.exception.RestApiException;
 import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.task_allocator.model.PickingOrder;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import lombok.Getter;
 
@@ -37,8 +38,17 @@ public enum Station {
                 .orElseThrow(() -> new RestApiException(STATION_NOT_FOUND));
     }
 
-    public void addTask(PickingTask pickingTask) {
-        tasks.add(pickingTask);
+    public String orderIdsToString() {
+        StringBuilder sb = new StringBuilder();
+        for (PickingTask pickingTask : tasks) {
+            long orderId = pickingTask.getOrderId();
+            sb.append(orderId).append(",");
+        }
+        return sb.toString();
+    }
+
+    public void allocateOrder(PickingOrder pickingOrder) {
+        tasks.addAll(pickingOrder.getPickingTasks());
     }
 
     public List<PickingTask> getTasksByItem(Item targetItem) {
