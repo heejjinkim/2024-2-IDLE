@@ -4,6 +4,7 @@ import com.example.__2_IDLE.global.exception.RestApiException;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.order.model.Customer;
 import com.example.__2_IDLE.order.model.Order;
+import com.example.__2_IDLE.simulator.response.DeliveryStatusResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -45,11 +46,34 @@ public class OrderService {
     public void markItemAsCompleted(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RestApiException(ORDER_NOT_FOUND));
+
         order.updateCompletedItemCount();
     }
 
     public Order findOrderById(Long orderId) {
         return orderRepository.findById(orderId)
                 .orElseThrow(() -> new RestApiException(ORDER_NOT_FOUND));
+    }
+
+    public DeliveryStatusResponse getProcessedDeliveryCount() {
+        List<Order> allOrders = orderRepository.findAll();
+
+        int sameDayDeliveryCount = 0;
+        int standardDeliveryCount = 0;
+
+        for (Order order : allOrders) {
+            if (order.isCompleted()) {
+                if (order.isSameDayDelivery()) {
+                    sameDayDeliveryCount++;
+                } else {
+                    standardDeliveryCount++;
+                }
+            }
+        }
+
+        return DeliveryStatusResponse.builder()
+                .SameDayDeliveryCount(sameDayDeliveryCount)
+                .StandardDeliveryCount(standardDeliveryCount)
+                .build();
     }
 }

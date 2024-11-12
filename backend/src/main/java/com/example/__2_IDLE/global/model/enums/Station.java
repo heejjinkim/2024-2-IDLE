@@ -64,15 +64,14 @@ public enum Station {
                 .findFirst();
     }
 
-    public List<Long> completeTask(PickingTask pickingTask) {
-        List<Long> removedIds = tasks.stream()
+    public List<PickingTask> completeTask(PickingTask pickingTask) {
+        List<PickingTask> removedTasks = tasks.stream()
                 .filter(task -> task.getItem().equals(pickingTask.getItem()))
                 .filter(PickingTask::isAllocated)
-                .map(PickingTask::getId)
                 .toList();
 
         tasks.removeIf(task -> task.getItem().equals(pickingTask.getItem()));
 
-        return removedIds;
+        return removedTasks;
     }
 }

@@ -1,6 +1,8 @@
 package com.example.__2_IDLE.simulator.controller;
 
+import com.example.__2_IDLE.order.OrderService;
 import com.example.__2_IDLE.robot.RobotService;
+import com.example.__2_IDLE.simulator.response.DeliveryStatusResponse;
 import com.example.__2_IDLE.simulator.response.RobotStatusResponse;
 import com.example.__2_IDLE.simulator.response.StationStatusResponse;
 import com.example.__2_IDLE.simulator.service.SimulatorService;
@@ -21,6 +23,7 @@ public class SimulatorController {
     private final SimulatorService simulatorService;
     private final StationService stationService;
     private final RobotService robotService;
+    private final OrderService orderService;
 
     // 시뮬레이션 시작
     @PostMapping("/start")
@@ -47,5 +50,11 @@ public class SimulatorController {
     @GetMapping("/robots")
     public ResponseEntity<List<RobotStatusResponse>> getRobots() {
         return ResponseEntity.ok(robotService.getRobotsStatus());
+    }
+
+    // 당일배송, 일반배송 처리량 반환
+    @GetMapping("/delivery")
+    public ResponseEntity<DeliveryStatusResponse> getProcessedDeliveryCount() {
+        return ResponseEntity.ok(orderService.getProcessedDeliveryCount());
     }
 }

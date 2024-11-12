@@ -53,13 +53,17 @@ public class Robot {
         }
     }
 
-    public List<Long> completeCurrentTask(Station station) {
+    public List<PickingTask> completeCurrentTask(Station station) {
         // 동일 Station, 동일 Item Task 다 제거
         PickingTask pickingTask = taskQueue.removeFirst();
 
-        List<Long> completedTaskIds = station.completeTask(pickingTask);
-        taskQueue.removeIf(task -> completedTaskIds.contains(task.getId()));
+        List<PickingTask> completedTasks = station.completeTask(pickingTask);
 
-        return completedTaskIds;
+        taskQueue.removeIf(task -> completedTasks.stream()
+                .map(PickingTask::getId)
+                .toList()
+                .contains(task.getId()));
+
+        return completedTasks;
     }
 }
