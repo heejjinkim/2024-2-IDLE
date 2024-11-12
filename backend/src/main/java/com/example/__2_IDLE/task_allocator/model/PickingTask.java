@@ -2,6 +2,7 @@ package com.example.__2_IDLE.task_allocator.model;
 
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Item;
+import com.example.__2_IDLE.robot.model.Robot;
 import lombok.Getter;
 
 import java.util.Random;
@@ -34,5 +35,13 @@ public class PickingTask {
     private int genRandomTimeCost() {
         Random random = new Random();
         return random.nextInt(3) + 1;
+    }
+
+    public double calcDistance(Robot robot) {
+        return Pose.distance(item.getShelf().getPose(), robot.getCurrentPose());
+    }
+
+    public long getOrderId() {
+        return orderId;
     }
 }
