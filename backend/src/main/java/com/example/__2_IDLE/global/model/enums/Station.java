@@ -38,7 +38,7 @@ public enum Station {
                 .orElseThrow(() -> new RestApiException(STATION_NOT_FOUND));
     }
 
-    public String tasksToString() {
+    public String orderIdsToString() {
         StringBuilder sb = new StringBuilder();
         for (PickingTask pickingTask : tasks) {
             long orderId = pickingTask.getOrderId();

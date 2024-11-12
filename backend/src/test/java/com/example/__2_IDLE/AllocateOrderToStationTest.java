@@ -28,6 +28,6 @@ public class AllocateOrderToStationTest {
     void test() {
         TaskWave taskWave = scheduleService.getTaskWave();
         Arrays.stream(Station.values())
-                .forEach(station -> System.out.println(station.tasksToString()));
+                .forEach(station -> System.out.println(station.orderIdsToString()));
     }
 }
