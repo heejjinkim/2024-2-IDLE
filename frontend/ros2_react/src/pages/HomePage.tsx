@@ -21,7 +21,7 @@ import { base64ToUint8Array } from '../util/base64ToUnit8Array';
 import { Robot } from '../model/Robot';
 import { VariableBox, VariableBoxProps } from '../components/box';
 import { PickingStationTable } from '../components/table';
-import { RobotStateTable } from '../components/RobotTable';
+import { RobotStateTable } from '../components/robotTable';
 
 export default function HomePage() {
   const [mapImage, setMapImage] = useState<string|null>(null);
