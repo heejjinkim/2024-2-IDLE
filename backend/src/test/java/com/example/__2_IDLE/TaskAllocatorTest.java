@@ -1,29 +1,25 @@
 package com.example.__2_IDLE;
 
-import com.example.__2_IDLE.global.model.Order;
+import com.example.__2_IDLE.order.OrderRepository;
+import com.example.__2_IDLE.order.model.Order;
 import com.example.__2_IDLE.global.model.Pose;
-import com.example.__2_IDLE.global.model.ScheduleTask;
-import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.global.model.robot.Robot;
-import com.example.__2_IDLE.global.model.robot.RobotRepository;
-import com.example.__2_IDLE.global.model.robot.RobotService;
-import com.example.__2_IDLE.schedule_module.ScheduleModule;
-import com.example.__2_IDLE.simulator.SimulatorService;
+import com.example.__2_IDLE.order.OrderService;
+import com.example.__2_IDLE.robot.model.Robot;
+import com.example.__2_IDLE.robot.RobotMapRepository;
+import com.example.__2_IDLE.robot.RobotService;
+import com.example.__2_IDLE.schedule.ScheduleRepository;
+import com.example.__2_IDLE.schedule.ScheduleService;
 import com.example.__2_IDLE.task_allocator.TaskAllocateAlgorithm;
 import com.example.__2_IDLE.task_allocator.TaskAllocator;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
-import com.example.__2_IDLE.task_allocator.controller.StationController;
-import com.example.__2_IDLE.task_allocator.model.PickingTask;
+import com.example.__2_IDLE.task_allocator.StationService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 
 public class TaskAllocatorTest {
-
-    static final int NUMBER_OF_ORDERS = 10;
 
     TaskAllocator taskAllocator;
     TaskAllocateAlgorithm taskAllocateAlgorithm;
@@ -31,54 +27,43 @@ public class TaskAllocatorTest {
     @Test
     void taskAllocatorStartTest() {
         taskAllocator.start();
-//        for (Station station : Station.values()) {
-//            System.out.println("station " + station.getName() + " : ");
-//            for (PickingTask task : station.getTasks()) {
-//                System.out.print(task.getItem() + "(" + task.getId() + "), ");
-//            }
-//            System.out.println();
-//        }
-        RobotRepository robotRepository = taskAllocateAlgorithm.getRobotRepository();
-        Map<String, Robot> allRobots = robotRepository.getAllRobots();
-        for (Robot robot : allRobots.values()) {
-            System.out.println("robot " + robot.getNamespace() + " : ");
-            for (PickingTask task : robot.getTaskQueue()) {
-                System.out.print(task.getItem() + ", ");
-            }
-            System.out.println();
-        }
         Assertions.assertTrue(taskAllocateAlgorithm.isDone());
     }
 
     @BeforeEach
     void initField() {
-        this.taskAllocateAlgorithm = makeTaskAllocateAlgorithm();
+        ScheduleRepository scheduleRepository = new ScheduleRepository();
+        ScheduleService scheduleService = new ScheduleService(scheduleRepository);
+        OrderRepository orderRepository = new OrderRepository();
+        OrderService orderService = new OrderService(orderRepository);
 
-        ScheduleModule scheduleModule = new ScheduleModule();
-        List<ScheduleTask> scheduleTasks = createScheduleTasks();
-        scheduleModule.addAllTask(scheduleTasks);
-        this.taskAllocator = new TaskAllocator(taskAllocateAlgorithm, scheduleModule);
+        this.taskAllocateAlgorithm = makeTaskAllocateAlgorithm(orderService);
+
+        List<Order> orders = orderService.generateRandomOrders();
+        scheduleService.createScheduleTasks(orders);
+
+        this.taskAllocator = new TaskAllocator(taskAllocateAlgorithm, scheduleService);
     }
 
-    private static List<ScheduleTask> createScheduleTasks() {
-        List<Order> orders = SimulatorService.generateRandomOrders(NUMBER_OF_ORDERS);
-        return SimulatorService.createScheduleTasks(orders);
+    private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm(OrderService orderService) {
+        RobotMapRepository robotMapRepository = new RobotMapRepository();
+        RobotService robotService = new RobotService(robotMapRepository);
+
+        StationService stationService = new StationService(orderService);
+        RobotController robotController = new RobotController(robotService);
+
+        addRobots(robotMapRepository);
+
+        return new TaskAllocateAlgorithm(robotController, stationService);
     }
 
-    private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm() {
-        RobotRepository robotRepository = new RobotRepository();
-        StationController stationController = new StationController();
-        addRobots(robotRepository);
-        return new TaskAllocateAlgorithm(robotRepository, stationController);
-    }
-
-    private static void addRobots(RobotRepository robotRepository) {
+    private static void addRobots(RobotMapRepository robotMapRepository) {
         Robot robot1 = new Robot("/tb1", new Pose(0, 0));
         Robot robot2 = new Robot("/tb2", new Pose(0, 5));
         Robot robot3 = new Robot("/tb3", new Pose(0, 10));
-        robotRepository.addRobot(robot1);
-        robotRepository.addRobot(robot2);
-        robotRepository.addRobot(robot3);
+        robotMapRepository.addRobot(robot1);
+        robotMapRepository.addRobot(robot2);
+        robotMapRepository.addRobot(robot3);
     }
 
 

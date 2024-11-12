@@ -1,36 +1,40 @@
 package com.example.__2_IDLE.task_allocator;
 
-import com.example.__2_IDLE.schedule_module.ScheduleModule;
+import com.example.__2_IDLE.schedule.ScheduleService;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Service
 @Slf4j
 @RequiredArgsConstructor
 public class TaskAllocator {
 
     private final TaskAllocateAlgorithm algorithm;
-    private final ScheduleModule scheduleModule;
+    private final ScheduleService scheduleService;
 
-    public void start() {
+    public boolean start() {
         try {
-            run();
+            return run();
         } catch (ArrayIndexOutOfBoundsException e) {
             log.info("scheduling queue is empty");
+            return true;
         }
     }
 
-    private void run() {
+    private boolean run() {
         initAlgorithm();
 
         if (algorithm.isDone()) {
-            return;
+            return true;
         }
 
         boolean isDone = false;
         while (!isDone) {
             isDone = runAlgorithm();
         }
+        return isDone;
     }
 
     private void initAlgorithm() {
@@ -52,6 +56,6 @@ public class TaskAllocator {
     }
 
     private TaskWave fetchTaskWave() {
-        return scheduleModule.getTaskWave();
+        return scheduleService.getTaskWave();
     }
 }

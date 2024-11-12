@@ -1,8 +1,8 @@
 package com.example.__2_IDLE.task_allocator.controller;
 
-import com.example.__2_IDLE.global.model.robot.Robot;
-import com.example.__2_IDLE.global.model.robot.RobotService;
-import com.example.__2_IDLE.global.model.robot.request.AddRobotRequest;
+import com.example.__2_IDLE.robot.model.Robot;
+import com.example.__2_IDLE.robot.RobotService;
+import com.example.__2_IDLE.robot.request.AddRobotRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;

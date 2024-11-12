@@ -1,7 +1,7 @@
 package com.example.__2_IDLE.task_allocator.model;
 
-import com.example.__2_IDLE.global.model.Order;
-import com.example.__2_IDLE.global.model.ScheduleTask;
+import com.example.__2_IDLE.order.model.Order;
+import com.example.__2_IDLE.schedule.model.ScheduleTask;
 import com.example.__2_IDLE.global.model.enums.Item;
 import lombok.Getter;
 import lombok.Setter;

@@ -2,15 +2,13 @@ package com.example.__2_IDLE.task_allocator;
 
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Station;
-import com.example.__2_IDLE.global.model.robot.Robot;
-import com.example.__2_IDLE.global.model.robot.RobotRepository;
+import com.example.__2_IDLE.robot.model.Robot;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
-import com.example.__2_IDLE.task_allocator.controller.StationController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.List;
@@ -18,14 +16,14 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Component
 @Slf4j
-@Getter
 @RequiredArgsConstructor
 public class TaskAllocateAlgorithm {
 
     private TaskWave taskWave;
-    private final RobotRepository robotRepository;
-    private final StationController stationController;
+    private final RobotController robotController;
+    private final StationService stationService;
 
     public void init(TaskWave taskWave) { // task wave의 모든 작업을 스테이션에 골고루 분배
         this.taskWave = taskWave;
@@ -49,7 +47,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step1() {
-        Map<String, Robot> allRobots = robotRepository.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             Optional<PickingTask> optionalNearestTask = taskWave.getWave().stream()
                     .filter(task -> !task.isAllocated())
@@ -71,7 +69,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step2() {
-        Map<String, Robot> allRobots = robotRepository.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalStation = getStationByTask(lastTask);
@@ -79,13 +77,13 @@ public class TaskAllocateAlgorithm {
                 break;
             }
             Station station = optionalStation.get();
-            List<PickingTask> stronglyCorrelatedTask = stationController.getNotAllocatedTaskSameItemOf(lastTask, station);
+            List<PickingTask> stronglyCorrelatedTask = stationService.getNotAllocatedTaskSameItemOf(lastTask, station);
             allocateAllTask(robot, stronglyCorrelatedTask);
         }
     }
 
     private Optional<Station> getStationByTask(PickingTask lastTask) {
-        Optional<Station> optionalStation = stationController.getStationHasTask(lastTask);
+        Optional<Station> optionalStation = stationService.getStationHasTask(lastTask);
         if (optionalStation.isEmpty()) {
             log.info("해당 작업을 할당받은 스테이션이 없습니다");
             return Optional.empty();
@@ -94,7 +92,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step3() {
-        Map<String, Robot> allRobots = robotRepository.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalLastTaskStation = getStationByTask(lastTask);
@@ -102,18 +100,18 @@ public class TaskAllocateAlgorithm {
                 break;
             }
             Station lastTaskStation = optionalLastTaskStation.get();
-            List<Station> otherStations = stationController.getAllStationsExcept(lastTaskStation);
+            List<Station> otherStations = stationService.getAllStationsExcept(lastTaskStation);
             for (Station station : otherStations) {
-                List<PickingTask> weaklyCorrelatedTask = stationController.getNotAllocatedTaskSameItemOf(lastTask, station);
+                List<PickingTask> weaklyCorrelatedTask = stationService.getNotAllocatedTaskSameItemOf(lastTask, station);
                 allocateAllTask(robot, weaklyCorrelatedTask);
             }
         }
     }
 
     public void step4() {
-        Map<String, Robot> allRobots = robotRepository.getAllRobots();
+        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
-            Optional<Station> optionalStationHasMaxTimeCost = stationController.getStationHasMaxTimeCost();
+            Optional<Station> optionalStationHasMaxTimeCost = stationService.getStationHasMaxTimeCost();
             if (optionalStationHasMaxTimeCost.isEmpty()) {
                 log.info("모든 작업이 할당되었습니다");
                 return;
