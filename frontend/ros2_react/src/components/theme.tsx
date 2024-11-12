@@ -16,5 +16,11 @@ export const theme = createTheme({
     },
     typography: {
       fontFamily: "'Noto Sans KR', sans-serif",
+      h1: {
+        color: '#000000', 
+      },
+      h2: {
+        color: '#000000', 
+      },
     },
   });

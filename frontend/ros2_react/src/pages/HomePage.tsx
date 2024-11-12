@@ -2,15 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { theme } from '../components/theme';
 import { 
   AppBar, Toolbar, Typography, Container, Grid, Card, CardHeader, CardContent, Select, MenuItem, SelectChangeEvent, ThemeProvider, 
-  CssBaseline, Box
+  CssBaseline, Box,
+  Divider,
+  Button
 } from '@mui/material';
 import {StatusIndicator, StatusDot} from '../components/status'; 
 import ROSLIB from 'roslib';
-import { Map, Navigation } from 'lucide-react';
+import { Map, Navigation, Thermometer } from 'lucide-react';
 import { IconWrapper } from '../components/icon';
 import { MapArea } from '../components/map';
 import { base64ToUint8Array } from '../util/base64ToUnit8Array';
 import { Robot } from '../model/Robot';
+import { VariableBox, VariableBoxProps } from '../components/box';
 
 export default function HomePage() {
   const [mapImage, setMapImage] = useState<string|null>(null);
@@ -22,6 +25,11 @@ export default function HomePage() {
   ]);
 
   const [ros, setRos] = useState<ROSLIB.Ros | null>(null);
+  const [isRunningSimulation, setIsRunningSimulation] = useState<boolean>(false);
+  const [shipProcess, setShipProcess] = useState<VariableBoxProps>({
+    value1: 0,
+    value2: 0
+  });
 
   useEffect(() => {
       const rosInstance = new ROSLIB.Ros({
@@ -164,6 +172,19 @@ export default function HomePage() {
     console.log('전송 완료');
   }
 
+  function onClickSimulationButton(){
+    // Todo : 시뮬레이션 실행 API 호출
+    setIsRunningSimulation(true);
+    console.log('시뮬레이션 실행');
+  }
+  function getShipProcess(){
+    // Todo : 배송 현황 API 호출
+    setShipProcess(prevValue => ({
+      value1: 10,
+      value2: 20
+    }));
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -171,17 +192,42 @@ export default function HomePage() {
         <AppBar position="static" color="primary" elevation={0}>
           <Toolbar>
             <Box sx={{ display: 'flex', justifyContent : 'space-between', width: '100%',  alignItems: 'center' }}>
-              <Typography component="h1" variant="h6" sx={{fontWeight : 'bold'}}>IDLE_FMS</Typography>
+              <Typography component="h1" variant="subtitle1" sx={{fontWeight : 'bold'}}>IDLE_FMS</Typography>
              <StatusIndicator connected={rosConnection}>
                 <StatusDot connected={rosConnection} />
                 {rosConnection ? '연결중' : '연결 없음'}
               </StatusIndicator>
               </Box> 
           </Toolbar>
+          <Divider sx={{ backgroundColor: 'black.100' }} />
         </AppBar>
-        <Container maxWidth={false} sx={{ mt: 4, px: 4 }}>
-          <Grid container spacing={3}>
-            <Grid item xs={12} lg={8}>
+        <Container sx = {{
+          paddingTop: 2,
+          gap : 2,
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+        }}>
+          {isRunningSimulation ?
+          (<Button sx= {{
+            border: '1px solid black',
+            borderRadius: '4px',
+          }} color='secondary' variant='outlined' disableRipple>실행중</Button>) : 
+          (<Button sx= {{
+            border: '1px solid black',
+            borderRadius: '4px',
+          }} color='secondary' variant='outlined' onClick={onClickSimulationButton} >시뮬레이션 실행</Button>)}
+          <VariableBox value1={shipProcess.value1} value2={shipProcess.value2}/>
+        </Container>
+        <Container maxWidth={false} sx={{ mt: 4, px: 4, width: { xs: '100%',  md: '85%',},}}>
+
+          <Box sx={{width : '100%'}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
+              실시간 모니터링 화면
+            </Typography>
+          </Box> 
+
+          <Grid item xs={12} lg={8}>
               <Card>
                 <CardHeader
                   title={
@@ -203,8 +249,21 @@ export default function HomePage() {
                   </MapArea>
                 </CardContent>
               </Card>
-            </Grid>
-            
+          </Grid>
+
+          <Box sx={{width : '100%'}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
+              피킹 스테이션 상태
+            </Typography>
+          </Box> 
+
+          <Box sx={{width : '100%'}}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 14, color:'text.primary', textAlign:'left' }}>
+              로봇 상태
+            </Typography>
+          </Box> 
+
+          <Grid container spacing={3}>
             <Grid item xs={12} lg={4}>
               <Card>
                 <CardHeader
