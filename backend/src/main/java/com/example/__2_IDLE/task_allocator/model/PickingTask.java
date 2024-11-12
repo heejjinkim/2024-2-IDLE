@@ -2,9 +2,7 @@ package com.example.__2_IDLE.task_allocator.model;
 
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Item;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 
 import java.util.Random;
 

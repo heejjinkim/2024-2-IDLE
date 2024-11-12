@@ -1,6 +1,7 @@
 package com.example.__2_IDLE.global.model.robot;
 
 import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.task_allocator.controller.StationController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 
 import java.util.LinkedList;
@@ -37,11 +38,54 @@ public class Robot {
         }
     }
 
-    public void allocateAllTask(List<PickingTask> stronglyCorrelatedTasks) {
-        taskQueue.addAll(stronglyCorrelatedTasks);
+    public double doTask(StationController stationController) {
+
+        double WAIT_TIME = 5;
+        double result = 0;
+
+        int currentTaskIndex = 0;
+        int taskCount = taskQueue.size();
+
+        PickingTask currentTask = taskQueue.get(currentTaskIndex);
+        double firstTaskTime = Pose.distance(currentPose, currentTask.getPose())
+                + Pose.distance(currentTask.getPose(), findStationPose(stationController, currentTask));
+
+        currentTaskIndex += 1;
+        int nextTaskIndex = 2;
+        while (nextTaskIndex < taskCount) {
+            currentTask = taskQueue.get(currentTaskIndex);
+            PickingTask nextTask = taskQueue.get(nextTaskIndex);
+            if (isSameItem(currentTask, nextTask)){
+                result += Pose.distance(findStationPose(stationController, currentTask), findStationPose(stationController, nextTask));
+            } else {
+                result += Pose.distance(findStationPose(stationController, currentTask), nextTask.getPose())
+                        + Pose.distance(nextTask.getPose(), findStationPose(stationController, nextTask));
+            }
+            result += WAIT_TIME;
+            currentTaskIndex += 1;
+            nextTaskIndex += 1;
+        }
+
+        return result;
     }
 
-    public boolean hasTask() {
-        return !taskQueue.isEmpty();
+    public void addTask(PickingTask task) {
+        this.taskQueue.add(task);
+    }
+
+    public void clearTaskQueue() {
+        taskQueue.clear();
+    }
+
+    private Pose findStationPose(StationController stationController, PickingTask currentTask) {
+        return stationController.getStationHasTask(currentTask).get().getPose();
+    }
+
+    private boolean isSameItem(PickingTask currentTask, PickingTask nextTask) {
+        return currentTask.getItem() == nextTask.getItem();
+    }
+
+    private boolean isSameStation(StationController stationController, PickingTask currentTask, PickingTask nextTask) {
+        return stationController.getStationHasTask(currentTask).get().equals(stationController.getStationHasTask(nextTask).get());
     }
 }

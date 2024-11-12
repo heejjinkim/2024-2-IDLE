@@ -3,10 +3,12 @@ package com.example.__2_IDLE.task_allocator;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.robot.Robot;
+import com.example.__2_IDLE.global.model.robot.RobotRepository;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
 import com.example.__2_IDLE.task_allocator.controller.StationController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -17,11 +19,12 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Slf4j
+@Getter
 @RequiredArgsConstructor
 public class TaskAllocateAlgorithm {
 
     private TaskWave taskWave;
-    private final RobotController robotController;
+    private final RobotRepository robotRepository;
     private final StationController stationController;
 
     public void init(TaskWave taskWave) { // task wave의 모든 작업을 스테이션에 골고루 분배
@@ -46,7 +49,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step1() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
+        Map<String, Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots.values()) {
             Optional<PickingTask> optionalNearestTask = taskWave.getWave().stream()
                     .filter(task -> !task.isAllocated())
@@ -68,7 +71,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step2() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
+        Map<String, Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalStation = getStationByTask(lastTask);
@@ -91,7 +94,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step3() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
+        Map<String, Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalLastTaskStation = getStationByTask(lastTask);
@@ -108,7 +111,7 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step4() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
+        Map<String, Robot> allRobots = robotRepository.getAllRobots();
         for (Robot robot : allRobots.values()) {
             Optional<Station> optionalStationHasMaxTimeCost = stationController.getStationHasMaxTimeCost();
             if (optionalStationHasMaxTimeCost.isEmpty()) {

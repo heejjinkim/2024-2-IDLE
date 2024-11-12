@@ -39,4 +39,8 @@ public class RobotRepository {
             log.info("[RobotRepository-removeRobot] : 제거할 로봇 '{}'이 존재하지 않습니다.", namespace);
         }
     }
+
+    public Map<String, Robot> getAllRobots() {
+        return robotMap;
+    }
 }
