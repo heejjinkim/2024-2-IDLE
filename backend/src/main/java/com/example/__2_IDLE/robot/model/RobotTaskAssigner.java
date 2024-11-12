@@ -68,7 +68,7 @@ public class RobotTaskAssigner {
 
     private void moveToShelfOrStation(PickingTask currentTask, boolean skipShelf) {
         Shelf shelf = currentTask.getItem().getShelf();
-        Station station = stationService.getStationHasTask(currentTask).get(); // todo: service 안 쓰는 방법?
+        Station station = stationService.getStationHasTask(currentTask).get();
 
         if (!skipShelf) {
             log.info("로봇 {}: 선반 {}로 이동합니다.", robot.getNamespace(), shelf);
@@ -86,9 +86,11 @@ public class RobotTaskAssigner {
     }
 
     private void completeOrContinue(PickingTask currentTask, Station station) {
-        List<Long> completedTaskIds = robot.completeCurrentTask(station);
-        completedTaskIds.forEach(orderService::markItemAsCompleted); // todo: orderService 안 쓰는 법?
-
+        List<PickingTask> completedTasks = robot.completeCurrentTask(station);
+        completedTasks.forEach(task -> {
+            Long orderId = task.getOrderId();
+            orderService.markItemAsCompleted(orderId);
+        });
         PickingTask nextTask = robot.getFirstTask();
 
         if (nextTask != null && nextTask.getItem().equals(currentTask.getItem())) {
