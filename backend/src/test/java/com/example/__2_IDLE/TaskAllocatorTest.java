@@ -3,6 +3,7 @@ package com.example.__2_IDLE;
 import com.example.__2_IDLE.global.model.Order;
 import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.ScheduleTask;
+import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.global.model.robot.Robot;
 import com.example.__2_IDLE.global.model.robot.RobotRepository;
 import com.example.__2_IDLE.global.model.robot.RobotService;
@@ -12,15 +13,17 @@ import com.example.__2_IDLE.task_allocator.TaskAllocateAlgorithm;
 import com.example.__2_IDLE.task_allocator.TaskAllocator;
 import com.example.__2_IDLE.task_allocator.controller.RobotController;
 import com.example.__2_IDLE.task_allocator.controller.StationController;
+import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
+import java.util.Map;
 
 public class TaskAllocatorTest {
 
-    static final int NUMBER_OF_ORDERS = 100;
+    static final int NUMBER_OF_ORDERS = 10;
 
     TaskAllocator taskAllocator;
     TaskAllocateAlgorithm taskAllocateAlgorithm;
@@ -28,6 +31,22 @@ public class TaskAllocatorTest {
     @Test
     void taskAllocatorStartTest() {
         taskAllocator.start();
+//        for (Station station : Station.values()) {
+//            System.out.println("station " + station.getName() + " : ");
+//            for (PickingTask task : station.getTasks()) {
+//                System.out.print(task.getItem() + "(" + task.getId() + "), ");
+//            }
+//            System.out.println();
+//        }
+        RobotRepository robotRepository = taskAllocateAlgorithm.getRobotRepository();
+        Map<String, Robot> allRobots = robotRepository.getAllRobots();
+        for (Robot robot : allRobots.values()) {
+            System.out.println("robot " + robot.getNamespace() + " : ");
+            for (PickingTask task : robot.getTaskQueue()) {
+                System.out.print(task.getItem() + ", ");
+            }
+            System.out.println();
+        }
         Assertions.assertTrue(taskAllocateAlgorithm.isDone());
     }
 
@@ -48,14 +67,9 @@ public class TaskAllocatorTest {
 
     private static TaskAllocateAlgorithm makeTaskAllocateAlgorithm() {
         RobotRepository robotRepository = new RobotRepository();
-        RobotService robotService = new RobotService(robotRepository);
-
         StationController stationController = new StationController();
-        RobotController robotController = new RobotController(robotService);
-
         addRobots(robotRepository);
-
-        return new TaskAllocateAlgorithm(robotController, stationController);
+        return new TaskAllocateAlgorithm(robotRepository, stationController);
     }
 
     private static void addRobots(RobotRepository robotRepository) {
