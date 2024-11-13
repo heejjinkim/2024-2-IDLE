@@ -21,6 +21,7 @@ import java.util.concurrent.ExecutionException;
 public class TopicDataListener extends ROSDataListener implements ROSTopic {
 
     private CompletableFuture<Void> future;
+    private Topic echoBack;
 
     public TopicDataListener(Ros ros, ROSMessageHandler messageHandler) {
         super(ros);
@@ -45,16 +46,22 @@ public class TopicDataListener extends ROSDataListener implements ROSTopic {
         String topicName = getTopicName();
         String messageType = messageHandler.getMessageType();
 
-        Topic echoBack = new Topic(ros, topicName, messageType);
+        echoBack = new Topic(ros, topicName, messageType);
         echoBack.subscribe(new TopicCallback() { // topic subscribe
             @Override
             public void handleMessage(Message message) { // topic publisher가 publish할 경우 실행
                 String messageToString = message.toString();
                 messageHandler.setMessage(messageToString);
                 future.complete(null); // future 완료하여 대기 중인 스레드를 해제
-                echoBack.unsubscribe();
             }
         });
+    }
+
+    public void stopListening() {
+        if (echoBack != null) {
+            echoBack.unsubscribe();
+//            log.info("Unsubscribed from topic: {}", echoBack.getName());
+        }
     }
 
     private String getTopicName() {

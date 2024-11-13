@@ -7,18 +7,28 @@ import lombok.AllArgsConstructor;
 
 import java.util.concurrent.CountDownLatch;
 
-@AllArgsConstructor
 public class ROSValueGetter<T extends MessageValue> {
 
     private ROSDataListener dataListener;
     private ROSMessageHandler<T> messageHandler;
+    private boolean isConnected;
+
+    public ROSValueGetter(ROSDataListener dataListener, ROSMessageHandler<T> messageHandler) {
+        this.dataListener = dataListener;
+        this.messageHandler = messageHandler;
+        this.isConnected = false;
+    }
 
     public T getValue() {
         // 동기 처리를 위한 CountDownLatch 설정
         CountDownLatch latch = new CountDownLatch(1);
 
+        if (!isConnected) {
+            dataListener.connect();
+            isConnected = true;
+        }
+
         // 데이터 수신 시작
-        dataListener.connect();
         dataListener.go();
 
         // 비동기 처리 후 동기화
