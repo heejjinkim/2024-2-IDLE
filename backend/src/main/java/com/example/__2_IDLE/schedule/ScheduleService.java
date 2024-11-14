@@ -18,7 +18,7 @@ public class ScheduleService {
 
     private static final double WAIT_TIME_WEIGHT = 0.2;
     private static final double SCALE = 100.00; // 소수 셋째자리에서 반올림
-    public static final int WAVE_SIZE = 5;
+    public static final int WAVE_SIZE = 10;
 
     private final ScheduleRepository scheduleRepository;
 

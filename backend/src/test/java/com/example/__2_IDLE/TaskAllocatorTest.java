@@ -82,9 +82,9 @@ public class TaskAllocatorTest {
                 .map(task -> task.getItem().getName())
                 .toList();
 
-        System.out.println("tb1에 할당된 item들: " + String.join(",", tb1ItemNames));
-        System.out.println("tb2에 할당된 item들: " + String.join(",", tb2ItemNames));
-        System.out.println("tb3에 할당된 item들: " + String.join(",", tb3ItemNames));
+        System.out.println("tb1에 할당된 item: " + String.join(",", tb1ItemNames));
+        System.out.println("tb2에 할당된 item: " + String.join(",", tb2ItemNames));
+        System.out.println("tb3에 할당된 item: " + String.join(",", tb3ItemNames));
 
 
         totalTaskCount.get(ROBOT1_NAME).add(robot1.getTaskQueue().size());
