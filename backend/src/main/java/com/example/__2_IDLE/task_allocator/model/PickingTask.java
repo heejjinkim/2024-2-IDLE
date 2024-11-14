@@ -4,10 +4,12 @@ import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.robot.model.Robot;
 import lombok.Getter;
+import lombok.ToString;
 
 import java.util.Random;
 
 @Getter
+@ToString
 public class PickingTask {
 
     private final Long id;

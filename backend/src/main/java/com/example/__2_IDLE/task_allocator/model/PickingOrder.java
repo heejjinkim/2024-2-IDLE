@@ -1,9 +1,11 @@
 package com.example.__2_IDLE.task_allocator.model;
 
 import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.robot.model.Robot;
 
 import java.util.List;
+import java.util.Optional;
 
 public class PickingOrder {
 
@@ -36,5 +38,11 @@ public class PickingOrder {
             }
         }
         return nearestPickingTask;
+    }
+
+    public Optional<PickingTask> getAnyTaskByItem(Item item) {
+        return pickingTasks.stream()
+                .filter(pickingTask -> pickingTask.getItem().equals(item))
+                .findFirst();
     }
 }
