@@ -3,9 +3,9 @@ import { PickingStation } from "../model/PickingStation";
 
 export function PickingStationTable() {
     const stations : PickingStation[] = [
-        {id: 1, name: 'A Pikcing Station'},
-        {id: 2, name: 'B Picking Station'},
-        {id: 3, name: 'C Picking Station'},
+        {id: 1, name: 'A Pikcing Station', orders: null},
+        {id: 2, name: 'B Picking Station', orders: null},
+        {id: 3, name: 'C Picking Station', orders: null},
     ]
 
     function handleStationClick(station : PickingStation) {
