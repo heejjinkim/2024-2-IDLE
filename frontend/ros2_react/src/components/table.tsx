@@ -1,7 +1,9 @@
 import { Box, Paper, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { PickingStation } from "../model/PickingStation";
+import { useNavigate } from "react-router-dom";
 
 export function PickingStationTable() {
+    const navigate = useNavigate();
     const stations : PickingStation[] = [
         {id: 1, name: 'A Pikcing Station', orders: null},
         {id: 2, name: 'B Picking Station', orders: null},
@@ -10,6 +12,7 @@ export function PickingStationTable() {
 
     function handleStationClick(station : PickingStation) {
         console.log(`Station ${station.name} is clicked`);
+        navigate(`/station/${station.id}`);
     }
 
     return (
