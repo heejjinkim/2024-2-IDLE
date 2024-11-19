@@ -2,7 +2,7 @@ import { AppBar, Box, CssBaseline, Divider, ThemeProvider, Toolbar, Typography, 
 import { useParams } from "react-router-dom"
 import { theme } from "../components/theme";
 import { PickingStation } from "../model/PickingStation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getPickingStation } from "../api/api";
 
 export default function StationPage() {
@@ -13,6 +13,10 @@ export default function StationPage() {
         const result = await getPickingStation();
         setStation(result.pickingStations.find((station) => station.id === Number(id)) || null);
     }
+
+    useEffect(() => {
+        getStation();
+    }, []);
 
     return (
         <ThemeProvider theme={theme}>
