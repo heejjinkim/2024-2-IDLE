@@ -1,9 +1,13 @@
 import { Typography, Box } from '@mui/material';
 import { styled } from '@mui/system';
 
-export interface VariableBoxProps {
+export class VariableBoxProps {
   value1 : number;
   value2 : number;
+  constructor(value1 : number, value2 : number) {
+    this.value1 = value1;
+    this.value2 = value2;
+  }
 }
 
 export const GreyBox = styled('span')(({ theme }) => ({

@@ -16,7 +16,7 @@ export type getRobotStateResponse = {
     robots : RobotState[]
 }
 
-type RobotState = {
+export type RobotState = {
     name : string,
     working : boolean,
     tasks : Task[] | null

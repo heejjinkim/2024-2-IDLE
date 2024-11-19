@@ -13,8 +13,10 @@ import {
   Paper,
   TableHead,
   TableBody,
+  IconButton,
 } from '@mui/material';
-import {StatusIndicator, StatusDot} from '../components/status'; 
+import {StatusIndicator, StatusDot} from '../components/status';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import ROSLIB from 'roslib';
 import { MapArea } from '../components/map';
 import { base64ToUint8Array } from '../util/base64ToUnit8Array';
@@ -22,6 +24,8 @@ import { Robot } from '../model/Robot';
 import { VariableBox, VariableBoxProps } from '../components/box';
 import { PickingStationTable } from '../components/table';
 import { RobotStateTable } from '../components/robotTable';
+import { getDeliveryProcess, getRobots, startSimulation } from '../api/api';
+import { getDeliveryProcessResponse, RobotState } from '../api/type';
 
 export default function HomePage() {
   const [mapImage, setMapImage] = useState<string|null>(null);
@@ -34,6 +38,7 @@ export default function HomePage() {
     value1: 0,
     value2: 0
   });
+  const [robotState, setRobotState] = useState<RobotState[]>([]);
 
   useEffect(() => {
       const rosInstance = new ROSLIB.Ros({
@@ -99,85 +104,35 @@ export default function HomePage() {
             setMapImage(canvas.toDataURL());
         }
     });
-
-      
       setRos(rosInstance);
+      refresh();
   }, []);
 
-  function sendGoal(nameSpace: string, destination : string) {
-    if(!ros) return;
-    var destinationX = 0.0;
-    var destinationY = 0.0;
-    const actionName = '/' + nameSpace + '/goal_pose';
-
-    if (destination === 'destination1') {
-      destinationX = -1;
-      destinationY = -1.5;
-    } else if( destination === 'destination2') {
-      destinationX = -1;
-      destinationY = 1.5;
-    }else if( destination === 'destination3') {
-      destinationX = 1;
-      destinationY = -1.5;
-    }else if( destination === 'destination4') {
-      destinationX = -3.0;
-      destinationY = 1.0;
-    }
-    else if( destination === 'destination5') {
-      destinationX = -3.0;
-      destinationY = 0.0;
-    }
-    else if( destination === 'destination6') {
-      destinationX = -3.0;
-      destinationY = -1.0;
-    }
-    
-    const goalTopic = new ROSLIB.Topic({
-      ros: ros,
-      name: actionName,  
-      messageType: 'geometry_msgs/PoseStamped'  
-    });
-
-    // 목표 메시지를 정의합니다.
-    const goalMessage = {
-      header: {
-        frame_id: 'map'  // 목표를 기준으로 하는 프레임
-      },
-      pose: {
-        position: {
-          x: destinationX,  // 목표 위치의 x 좌표
-          y: destinationY,  // 목표 위치의 y 좌표
-          z: 0.0  // 목표 위치의 z 좌표
-        },
-        orientation: {
-          x: 0.0,  // 목표 방향의 x 성분
-          y: 0.0,  // 목표 방향의 y 성분
-          z: 0.0,  // 목표 방향의 z 성분
-          w: 1.0  // 목표 방향의 w 성분 (쿼터니언)
-        }
-      }
-    };
-
-    // 목표를 전송합니다.
-    goalTopic.publish(new ROSLIB.Message(goalMessage));
-    goalTopic.unsubscribe();
-
-    console.log('Goal sent:', goalMessage);
-
-    console.log('전송 완료');
-  }
-
-  function onClickSimulationButton(){
+  async function onClickSimulationButton(){
     // Todo : 시뮬레이션 실행 API 호출
-    setIsRunningSimulation(true);
-    console.log('시뮬레이션 실행');
+    const result = await startSimulation();
+    if(result){
+      setIsRunningSimulation(true);
+      console.log('시뮬레이션 실행');
+    }
   }
-  function getShipProcess(){
-    // Todo : 배송 현황 API 호출
+  
+  async function getShipProcess(){
+    const result : VariableBoxProps = await getDeliveryProcess();
     setShipProcess(prevValue => ({
-      value1: 10,
-      value2: 20
+      value1: result.value1,
+      value2: result.value2
     }));
+  }
+
+  async function getRobotState(){
+    const result : RobotState[] = await getRobots();
+    setRobotState(result);
+  }
+
+  function refresh(){
+    getShipProcess();
+    getRobotState();
   }
 
   return (
@@ -193,11 +148,16 @@ export default function HomePage() {
           <Toolbar>
             <Box sx={{ display: 'flex', justifyContent : 'space-between', width: '100%',  alignItems: 'center' }}>
               <Typography component="h1" variant="subtitle1" sx={{fontWeight : 'bold'}}>IDLE_FMS</Typography>
-             <StatusIndicator connected={rosConnection}>
-                <StatusDot connected={rosConnection} />
-                {rosConnection ? '연결중' : '연결 없음'}
-              </StatusIndicator>
-              </Box> 
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <IconButton onClick={refresh}>
+                  <RefreshIcon color="primary" />
+                </IconButton>
+                <StatusIndicator connected={rosConnection}>
+                    <StatusDot connected={rosConnection} />
+                    {rosConnection ? '연결중' : '연결 없음'}
+                </StatusIndicator>
+            </Box>
+            </Box> 
           </Toolbar>
           <Divider sx={{ backgroundColor: 'black.100' }} />
         </AppBar>
@@ -251,7 +211,7 @@ export default function HomePage() {
               로봇 상태
             </Typography>
           </Box>
-          <RobotStateTable />
+          <RobotStateTable robots={robotState}/>
         </Container>
       </Box>
     </ThemeProvider>

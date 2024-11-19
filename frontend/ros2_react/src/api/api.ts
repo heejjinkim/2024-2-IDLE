@@ -1,5 +1,6 @@
 import axios from "axios";
-import { getDeliveryProcessResponse, getPickingStationResponse, getRobotStateResponse } from "./type";
+import { getDeliveryProcessResponse, getPickingStationResponse, getRobotStateResponse, RobotState } from "./type";
+import { VariableBoxProps } from "../components/box";
 
 function getApiUrl(path: string) : string {
     const baseUrl = `http://localhost:5000${path}`;
@@ -42,7 +43,7 @@ export async function addOrders() : Promise<boolean> {
 }
 
 // 당일배송 일반배송 처리량 GET
-export async function getDeliveryProcess() : Promise<getDeliveryProcessResponse>{
+export async function getDeliveryProcess() : Promise<VariableBoxProps>{
     let responseData:getDeliveryProcessResponse = {
         standardDeliveryCount: 0,
         sameDayDeliveryCount: 0
@@ -57,7 +58,7 @@ export async function getDeliveryProcess() : Promise<getDeliveryProcessResponse>
             console.log(error.response.data);
         }
     }
-    return responseData;
+    return new VariableBoxProps(responseData.standardDeliveryCount, responseData.sameDayDeliveryCount);
 }
 // 피킹 스테이션 상태 GET
 export async function getPickingStation() : Promise<getPickingStationResponse> {
@@ -78,7 +79,7 @@ export async function getPickingStation() : Promise<getPickingStationResponse> {
 }
 
 // 로봇 상태 GET
-export async function getRobots() : Promise<getRobotStateResponse> {
+export async function getRobots() : Promise<RobotState[]> {
     let responseData:getRobotStateResponse = {
         robots: []
     };
@@ -92,5 +93,5 @@ export async function getRobots() : Promise<getRobotStateResponse> {
             console.log(error.response.data);
         }
     }
-    return responseData;
+    return responseData.robots;
 }
