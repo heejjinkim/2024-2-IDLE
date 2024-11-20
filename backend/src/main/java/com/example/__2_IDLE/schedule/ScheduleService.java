@@ -16,7 +16,8 @@ import java.util.List;
 @Slf4j
 public class ScheduleService {
 
-    private static final double WAIT_TIME_WEIGHT = 0.2;
+    private static final double WAIT_TIME_WEIGHT = 0.4264;
+    private static final int URGENCY_SCORE = 75;
     private static final double SCALE = 100.00; // 소수 셋째자리에서 반올림
     public static final int WAVE_SIZE = 10;
 
@@ -39,7 +40,7 @@ public class ScheduleService {
             ScheduleTask task = new ScheduleTask();
             task.setId(i);
             if (orders.get(i).isSameDayDelivery()) {
-                task.setUrgency(1);
+                task.setUrgency(URGENCY_SCORE);
             }
             task.setCreateTime(LocalDateTime.now());
             task.setOrder(orders.get(i));
