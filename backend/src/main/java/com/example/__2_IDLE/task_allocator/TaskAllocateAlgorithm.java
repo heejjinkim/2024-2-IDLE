@@ -1,17 +1,17 @@
 package com.example.__2_IDLE.task_allocator;
 
+import com.example.__2_IDLE.global.model.Pose;
+import com.example.__2_IDLE.global.model.enums.Item;
 import com.example.__2_IDLE.global.model.enums.Station;
+import com.example.__2_IDLE.robot.RobotMapRepository;
 import com.example.__2_IDLE.robot.model.Robot;
-import com.example.__2_IDLE.task_allocator.controller.RobotController;
 import com.example.__2_IDLE.task_allocator.model.PickingTask;
 import com.example.__2_IDLE.task_allocator.model.TaskWave;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Component
 @Slf4j
@@ -19,18 +19,34 @@ import java.util.Optional;
 public class TaskAllocateAlgorithm {
 
     private TaskWave taskWave;
-    private final RobotController robotController;
+    private Map<String, Robot> allRobots;
     private final StationService stationService;
 
-    public void init(TaskWave taskWave) {
+    public void init(TaskWave taskWave, Map<String, Robot> allRobots) {
         this.taskWave = taskWave;
+        this.allRobots = allRobots;
     }
 
     public void step1() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
+        List<Item> allocatedItems = new ArrayList<>();
         for (Robot robot : allRobots.values()) {
-            PickingTask nearestPickingTask = taskWave.getNearestPickingTask(robot);
-            allocateTask(robot, nearestPickingTask);
+            List<Item> items = Arrays.asList(Item.values());
+            items.sort(Comparator.comparingDouble(item ->
+                    Pose.distance(robot.getCurrentPose(), item.getShelf().getPose()))
+            );
+            for (Item item : items) {
+                if (allocatedItems.contains(item)) {
+                    continue;
+                }
+                try {
+                    PickingTask task = taskWave.getAnyTaskByItem(item);
+                    allocateTask(robot, task);
+                    allocatedItems.add(task.getItem());
+                } catch (NoSuchElementException e) {
+                    log.info("생성된 작업의 item 종류가 로봇의 개수보다 적습니다.");
+                }
+                break;
+            }
         }
     }
 
@@ -46,7 +62,6 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step2() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalStation = getStationByTask(lastTask);
@@ -69,7 +84,6 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step3() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             PickingTask lastTask = robot.getLastTask();
             Optional<Station> optionalLastTaskStation = getStationByTask(lastTask);
@@ -86,7 +100,6 @@ public class TaskAllocateAlgorithm {
     }
 
     public void step4() {
-        Map<String, Robot> allRobots = robotController.getAllRobots();
         for (Robot robot : allRobots.values()) {
             Optional<Station> optionalStationHasMaxTimeCost = stationService.getStationHasMaxTimeCost();
             if (optionalStationHasMaxTimeCost.isEmpty()) {

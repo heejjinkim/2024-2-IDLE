@@ -10,6 +10,7 @@ import com.example.__2_IDLE.robot.model.Robot;
 import com.example.__2_IDLE.schedule.ScheduleService;
 import com.example.__2_IDLE.task_allocator.StationService;
 import com.example.__2_IDLE.task_allocator.TaskAllocator;
+import com.example.__2_IDLE.task_allocator.model.TaskWave;
 import edu.wpi.rail.jrosbridge.Ros;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -54,6 +55,9 @@ public class SimulatorService {
     private void processWaveSchedulingAndTaskAllocation() {
         while (!scheduleService.isTaskQueueEmpty()) {
             if (scheduleService.run()) {
+                TaskWave taskWave = scheduleService.getTaskWave();
+                Map<String, Robot> allRobots = robotService.getAllRobots();
+                taskAllocator.initAlgorithm(taskWave, allRobots);
                 if (taskAllocator.start()) {
                     initializeTaskAssignersIfNeeded();
                     robotTaskAssignerRepository.startAllTaskAssigners();

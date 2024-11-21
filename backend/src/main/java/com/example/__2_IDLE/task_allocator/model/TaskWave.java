@@ -1,6 +1,5 @@
 package com.example.__2_IDLE.task_allocator.model;
 
-import com.example.__2_IDLE.global.model.Pose;
 import com.example.__2_IDLE.global.model.enums.Station;
 import com.example.__2_IDLE.order.model.Order;
 import com.example.__2_IDLE.robot.model.Robot;
@@ -10,10 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
@@ -98,5 +94,15 @@ public class TaskWave {
                 .map(item -> new PickingTask(pickingTaskId.getAndIncrement(), orderId, item))
                 .collect(Collectors.toList());
         return new PickingOrder(pickingTasks);
+    }
+
+    public PickingTask getAnyTaskByItem(Item item) {
+        for (PickingOrder order : wave) {
+            Optional<PickingTask> optionalPickingTask = order.getAnyTaskByItem(item);
+            if (optionalPickingTask.isPresent()) {
+                return optionalPickingTask.get();
+            }
+        }
+        throw new NoSuchElementException();
     }
 }
