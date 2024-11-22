@@ -11,7 +11,7 @@ export default function StationPage() {
 
     async function getStation() {
         const result = await getPickingStation();
-        setStation(result.pickingStations.find((station) => station.id === Number(id)) || null);
+        setStation(result.find((station) => station.id === Number(id)) || null);
     }
 
     useEffect(() => {
@@ -36,7 +36,7 @@ export default function StationPage() {
             <Container maxWidth={false} sx={{ mt: 4, px: 4, width: { xs: '100%',  md: '80%',},}}>
                 <Box sx={{width : '100%'}}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', mb: 2, color:'text.primary', textAlign:'left' }}>
-                        {station?.name} 주문처리 상세정보
+                        주문처리 상세정보 - {station?.name}
                     </Typography>
                 </Box> 
 

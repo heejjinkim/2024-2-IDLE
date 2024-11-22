@@ -1,9 +1,10 @@
 import axios from "axios";
 import { getDeliveryProcessResponse, getPickingStationResponse, getRobotStateResponse, RobotState } from "./type";
 import { VariableBoxProps } from "../components/box";
+import { PickingStation } from "../model/PickingStation";
 
 function getApiUrl(path: string) : string {
-    const baseUrl = `http://localhost:5000${path}`;
+    const baseUrl = `http://localhost:8080${path}`;
     const now = new Date();
     const formattedTime = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}:${now.getMilliseconds().toString().padStart(3, '0')}`;
     console.log(`[${formattedTime}] request: ${baseUrl}`);  
@@ -61,10 +62,8 @@ export async function getDeliveryProcess() : Promise<VariableBoxProps>{
     return new VariableBoxProps(responseData.standardDeliveryCount, responseData.sameDayDeliveryCount);
 }
 // 피킹 스테이션 상태 GET
-export async function getPickingStation() : Promise<getPickingStationResponse> {
-    let responseData:getPickingStationResponse = {
-        pickingStations: []
-    };
+export async function getPickingStation() : Promise<PickingStation[]> {
+    let responseData: PickingStation[] =[];
     try{
         const response = await axios.get(
             getApiUrl('/simulator/station'),
@@ -80,18 +79,18 @@ export async function getPickingStation() : Promise<getPickingStationResponse> {
 
 // 로봇 상태 GET
 export async function getRobots() : Promise<RobotState[]> {
-    let responseData:getRobotStateResponse = {
-        robots: []
-    };
+    let responseData:RobotState[] = [];
     try{
         const response = await axios.get(
             getApiUrl('/simulator/robots'),
         );
+        console.log("확인");
+        console.log(response.data)
         responseData = response.data;
     }catch(error){
         if (axios.isAxiosError(error) && error.response) {
             console.log(error.response.data);
         }
     }
-    return responseData.robots;
+    return responseData;
 }

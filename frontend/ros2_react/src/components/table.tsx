@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 export function PickingStationTable() {
     const navigate = useNavigate();
     const stations : PickingStation[] = [
-        {id: 1, name: 'A Pikcing Station', orders: null},
-        {id: 2, name: 'B Picking Station', orders: null},
-        {id: 3, name: 'C Picking Station', orders: null},
+        {id: 1, name: 'Station A', orders: null},
+        {id: 2, name: 'Station B', orders: null},
+        {id: 3, name: 'Station C', orders: null},
     ]
 
     function handleStationClick(station : PickingStation) {

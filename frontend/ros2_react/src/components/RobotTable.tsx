@@ -15,10 +15,15 @@ export function RobotStateTable( {robots} : { robots : RobotState[]}) {
 
     function getRobotNextTask(robot : RobotState) : string {
         if (robot.tasks != null && robot.tasks.length > 1) {
-            const result : string = '';
+            var result : string = '';
             for (let i = 1; i < robot.tasks.length; i++) {
-                result.concat(robot.tasks[i].item);
+                if(i==1){
+                    result += robot.tasks[i].item;
+                }else{
+                    result = result + ", " + robot.tasks[i].item;
+                }
             }
+            return result;
         }
         return "작업 없음";
     }
