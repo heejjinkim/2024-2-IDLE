@@ -16,9 +16,9 @@ import static com.example.__2_IDLE.global.exception.errorcode.TaskErrorCode.STAT
 
 @Getter
 public enum Station {
-    STATION_A(1L, "Station A", new Pose(-3, -1.5)), // TODO: 좌표 수정 필요
-    STATION_B(2L, "Station B", new Pose(-3, 0)),
-    STATION_C(3L, "Station C", new Pose(-3, 1.5));
+    STATION_A(1L, "Station A", new Pose(5, -4.5)),
+    STATION_B(2L, "Station B", new Pose(-0.5, -4.5)),
+    STATION_C(3L, "Station C", new Pose(-6.5, -4.5));
 
     private final Long id;
     private final String name;

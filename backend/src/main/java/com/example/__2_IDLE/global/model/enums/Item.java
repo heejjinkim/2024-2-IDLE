@@ -10,6 +10,8 @@ public enum Item {
   ITEM_D(4L, "Product D", Shelf.SHELF_D),
   ITEM_E(5L, "Product E", Shelf.SHELF_E),
   ITEM_F(6L, "Product F", Shelf.SHELF_F),
+  ITEM_G(7L, "Product G", Shelf.SHELF_G),
+  ITEM_H(8L, "Product H", Shelf.SHELF_H),
   ;
 
   private final Long id;
