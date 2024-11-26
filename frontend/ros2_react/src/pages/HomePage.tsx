@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { theme } from '../components/theme';
 import { 
   AppBar, Toolbar, Typography, Container, Grid, 
@@ -24,7 +24,7 @@ import { Robot } from '../model/Robot';
 import { VariableBox, VariableBoxProps } from '../components/box';
 import { PickingStationTable } from '../components/table';
 import { RobotStateTable } from '../components/robotTable';
-import { getDeliveryProcess, getRobots, startSimulation } from '../api/api';
+import { addOrders, getDeliveryProcess, getRobots, startSimulation } from '../api/api';
 import { getDeliveryProcessResponse, RobotState } from '../api/type';
 
 export default function HomePage() {
@@ -39,11 +39,19 @@ export default function HomePage() {
     value2: 0
   });
   const [robotState, setRobotState] = useState<RobotState[]>([]);
+  const rosRef = useRef<ROSLIB.Ros | null>(null);
 
   useEffect(() => {
       const rosInstance = new ROSLIB.Ros({
           url: 'ws://localhost:9090'
       });
+
+      if (rosRef.current) {
+        console.log('ROS already connected');
+        setRosConnection(true);
+        refresh()
+        return;
+      }
 
       rosInstance.on('connection', () => {
           console.log('Connected to ROS');
@@ -55,6 +63,11 @@ export default function HomePage() {
       });
 
       rosInstance.on('close', () => {
+          rosRef.current = null;
+          setRosConnection(false);
+          cameraTopic.unsubscribe();
+          rosInstance.close();
+          
           console.log('Connection to ROS closed');
       });
 
@@ -104,6 +117,7 @@ export default function HomePage() {
             setMapImage(canvas.toDataURL());
         }
     });
+      rosRef.current = rosInstance;
       setRos(rosInstance);
       refresh();
   }, []);
@@ -113,7 +127,18 @@ export default function HomePage() {
     const result = await startSimulation();
     if(result){
       setIsRunningSimulation(true);
+      refresh()
       console.log('시뮬레이션 실행');
+    }
+  }
+
+  async function onClickAddOrder(){
+    // Todo : 시뮬레이션 실행 API 호출
+    const result = await addOrders();
+    if(result){
+      refresh()
+      alert('추가 완료되었습니다'); 
+      console.log('주문 추가 완료');
     }
   }
   
@@ -134,6 +159,15 @@ export default function HomePage() {
     getShipProcess();
     getRobotState();
   }
+
+  useEffect(() => {
+    console.log('shipProcess가 변경되었습니다:', shipProcess);
+  }, [shipProcess]);
+
+  useEffect(() => {
+    console.log('robotState가 변경되었습니다:', robotState);
+  }, [robotState]);
+
 
   return (
     <ThemeProvider theme={theme}>
@@ -168,6 +202,14 @@ export default function HomePage() {
           justifyContent: 'flex-end',
           alignItems: 'center',
         }}>
+           {
+            isRunningSimulation ?
+            (<Button sx= {{
+              border: '1px solid black',
+              borderRadius: '4px',
+            }} color='secondary' variant='outlined'  onClick={onClickAddOrder}  disableRipple> 주문추가 </Button>) : (<div></div>)
+          }
+
           {isRunningSimulation ?
           (<Button sx= {{
             border: '1px solid black',

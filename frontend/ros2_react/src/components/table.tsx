@@ -12,7 +12,8 @@ export function PickingStationTable() {
 
     function handleStationClick(station : PickingStation) {
         console.log(`Station ${station.name} is clicked`);
-        navigate(`/station/${station.id}`);
+        const url = window.location.origin + `/station/${station.id}`;
+        window.open(url, '_blank'); 
     }
 
     return (
